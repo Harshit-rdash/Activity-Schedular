@@ -63,11 +63,10 @@ export class Schedule {
                 );
             }
             activity.set_planned_start_date_by_dependency(
-                add(
-                    dependency_activity.planned_start_date,
-                    { days: dependency.lag }
-                )
-            )
+                add(dependency_activity.planned_start_date, {
+                    days: dependency.lag,
+                })
+            );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FF) {
             if (dependency_activity.planned_end_date == null) {
                 throw new Schedule.WrongDateError(
@@ -75,11 +74,10 @@ export class Schedule {
                 );
             }
             activity.set_planned_end_date_by_dependency(
-                add(
-                    dependency_activity.planned_end_date,
-                    { days: dependency.lag }
-                )
-            )
+                add(dependency_activity.planned_end_date, {
+                    days: dependency.lag,
+                })
+            );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.SF) {
             if (dependency_activity.planned_end_date == null) {
                 throw new Schedule.WrongDateError(
@@ -87,11 +85,10 @@ export class Schedule {
                 );
             }
             activity.set_planned_end_date_by_dependency(
-                add(
-                    dependency_activity.planned_end_date,
-                    { days: dependency.lag }
-                )
-            )
+                add(dependency_activity.planned_end_date, {
+                    days: dependency.lag,
+                })
+            );
         }
     }
 
