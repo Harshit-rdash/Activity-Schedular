@@ -1,5 +1,6 @@
 import { Schedule } from "./schedule";
 import { IDependency, Activity } from "./activity";
+import { ITaskData } from ".";
 
 export function get_schedule_from_task_data(tree: ITaskData) {
     let activity_map: Map<string, Activity> = new Map<string, Activity>();

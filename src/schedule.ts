@@ -1,6 +1,6 @@
 import { Activity, IDependency } from "./activity";
 import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
-import { add, max, format, differenceInDays } from "date-fns";
+import { add, max, format, differenceInDays, min } from "date-fns";
 
 export class Schedule {
     static ScheduleBaseError = class extends Error {
@@ -31,13 +31,6 @@ export class Schedule {
         activity: Activity,
         dependency: IDependency
     ): void {
-        // This method set's start and end dates of dependent activity based on dependency
-        // Fetch dependency, raise Schedule.ActivityNotFoundError
-        // If dependency is FS -> set start date of activity to max(end date of dependency + lag, start date ) raise Schedule.WrongDateError
-        // If dependency is SS -> set start date of activity to max(start date of dependency + lag, end date )  raise Schedule.WrongDateError
-        // If dependency is FF -> set end date of activity to max(end date of dependency + lag, end date )  raise Schedule.WrongDateError
-        // If dependency is SF -> set end date of activity to max(start date of dependency + lag, end date )  raise Schedule.WrongDateError
-        // if end date < start date -> set end date to start date
 
         let dependency_activity: Activity | undefined = this.activity_map.get(
             dependency.id
@@ -45,47 +38,37 @@ export class Schedule {
         if (dependency_activity == undefined) {
             throw new Schedule.ActivityNotFoundError(dependency.id);
         }
+        if (dependency_activity.planned_end_date == undefined) {
+            throw new Schedule.WrongDateError(
+                `Planned end date of activity ${dependency.id} is null`
+            );
+        }
+        if (dependency_activity.planned_start_date == undefined) {
+            throw new Schedule.WrongDateError(
+                `Actual start date of activity ${dependency.id} is null`
+            );
+        }
         if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FS) {
-            if (dependency_activity.planned_end_date == undefined) {
-                throw new Schedule.WrongDateError(
-                    `Planned end date of activity ${dependency.id} is null`
-                );
-            }
             activity.set_planned_start_date_by_dependency(
                 add(dependency_activity.planned_end_date, {
                     days: dependency.lag,
                 })
             );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.SS) {
-            if (dependency_activity.planned_start_date == undefined) {
-                throw new Schedule.WrongDateError(
-                    `Actual start date of activity ${dependency.id} is null`
-                );
-            }
             activity.set_planned_start_date_by_dependency(
                 add(dependency_activity.planned_start_date, {
                     days: dependency.lag,
                 })
             );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FF) {
-            if (dependency_activity.planned_end_date == null) {
-                throw new Schedule.WrongDateError(
-                    `Planned end date of activity ${dependency.id} is null`
-                );
-            }
-            activity.set_planned_end_date_by_dependency(
+            activity.set_planned_end_date(
                 add(dependency_activity.planned_end_date, {
                     days: dependency.lag,
                 })
             );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.SF) {
-            if (dependency_activity.planned_end_date == null) {
-                throw new Schedule.WrongDateError(
-                    `Actual end date of activity ${dependency.id} is null`
-                );
-            }
-            activity.set_planned_end_date_by_dependency(
-                add(dependency_activity.planned_end_date, {
+            activity.set_planned_end_date(
+                add(dependency_activity.planned_start_date, {
                     days: dependency.lag,
                 })
             );
@@ -98,32 +81,20 @@ export class Schedule {
         if (child_activity == null) {
             throw new Schedule.ActivityNotFoundError(child_id);
         }
-        if (activity.planned_start_date == null) {
-            activity.planned_start_date = child_activity.planned_start_date;
-        } else {
-            if (child_activity.planned_start_date == null) {
-                throw new Schedule.WrongDateError(
-                    `Planned start date of activity ${child_id} is null`
-                );
-            }
-            activity.planned_start_date = max([
-                activity.planned_start_date,
-                child_activity.planned_start_date,
-            ]);
+        if (child_activity.planned_start_date == null) {
+            throw new Schedule.WrongDateError(
+                `Planned start date of activity ${child_id} is null`
+            );
         }
-        if (activity.planned_end_date == null) {
-            activity.planned_end_date = child_activity.planned_end_date;
-        } else {
-            if (child_activity.planned_end_date == null) {
-                throw new Schedule.WrongDateError(
-                    `Planned end date of activity ${child_id} is null`
-                );
-            }
-            activity.planned_end_date = max([
-                activity.planned_end_date,
-                child_activity.planned_end_date,
-            ]);
+        if (child_activity.planned_end_date == null) {
+            throw new Schedule.WrongDateError(
+                `Planned end date of activity ${child_id} is null`
+            );
         }
+        activity.set_planned_start_date_by_child(
+            child_activity.planned_start_date
+        );
+        activity.set_planned_end_date(child_activity.planned_end_date);
     }
 
     private _process_activity(

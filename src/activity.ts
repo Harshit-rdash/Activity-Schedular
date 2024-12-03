@@ -1,5 +1,5 @@
 import { ACTIVITY_STATUS, ACTIVITY_DEPENDENCY_TYPE } from "./enums";
-import { add, max, format, differenceInDays } from "date-fns";
+import { add, max, format, differenceInDays, min } from "date-fns";
 
 
 export interface IDependency {
@@ -68,7 +68,7 @@ export class Activity {
         }
     }
 
-    set_planned_end_date_by_dependency(date: Date): void {
+    set_planned_end_date(date: Date): void {
         if (this.planned_end_date == undefined) {
             this.planned_end_date = date;
         } else {
@@ -81,4 +81,15 @@ export class Activity {
             this.planned_end_date = this.planned_start_date;
         }
     }
+    set_planned_start_date_by_child(date: Date): void {
+        if (this.planned_start_date == null) {
+            this.planned_start_date = date;
+        } else {
+            this.planned_start_date = min([
+                this.planned_start_date,
+                date
+            ]);
+        }
+    }
+
 }
