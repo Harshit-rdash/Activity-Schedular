@@ -8,14 +8,18 @@ export function get_schedule_from_task_data(tree: ITaskData) {
     for (let task of tree.data) {
         let activity = new Activity(
             task.id,
-            task.start_date? new Date(task.start_date) : undefined,
+            task.start_date ? new Date(task.start_date) : undefined,
             task.end_date ? new Date(task.end_date) : undefined,
-            task.actual_start_date ? new Date(task.actual_start_date) : undefined,
+            task.actual_start_date
+                ? new Date(task.actual_start_date)
+                : undefined,
             task.actual_end_date ? new Date(task.actual_end_date) : undefined,
             task.projected_start_date
                 ? new Date(task.projected_start_date)
                 : undefined,
-            task.projected_end_date ? new Date(task.projected_end_date) : undefined,
+            task.projected_end_date
+                ? new Date(task.projected_end_date)
+                : undefined,
             [],
             [],
             task.progress ? task.progress : 0
@@ -51,5 +55,4 @@ export function get_schedule_from_task_data(tree: ITaskData) {
     return schedule;
 }
 
-export function get_task_data_from_schedule(schedule: Schedule) {
-}
+export function get_task_data_from_schedule(schedule: Schedule) {}

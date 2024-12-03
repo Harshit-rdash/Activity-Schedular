@@ -49,16 +49,18 @@ export class Schedule {
             );
         }
         if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FS) {
-            activity.set_planned_start_date_by_dependency(
+            activity.set_planned_start_date(
                 add(dependency_activity.planned_end_date, {
                     days: dependency.lag,
-                })
+                }),
+                true
             );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.SS) {
-            activity.set_planned_start_date_by_dependency(
+            activity.set_planned_start_date(
                 add(dependency_activity.planned_start_date, {
                     days: dependency.lag,
-                })
+                }),
+                true
             );
         } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FF) {
             activity.set_planned_end_date(
@@ -91,7 +93,7 @@ export class Schedule {
                 `Planned end date of activity ${child_id} is null`
             );
         }
-        activity.set_planned_start_date_by_child(
+        activity.set_planned_start_date(
             child_activity.planned_start_date
         );
         activity.set_planned_end_date(child_activity.planned_end_date);
@@ -110,10 +112,6 @@ export class Schedule {
                 "Parent activity must not have dependencies"
             );
         }
-        // Base Case
-        if (activity.childs.length == 0 && activity.dependencies.length == 0) {
-            return;
-        }
         if (activity.childs.length == 0) {
             for (let dependency of activity.dependencies) {
                 if (visited_set.has(dependency.id) == false) {
@@ -121,7 +119,6 @@ export class Schedule {
                 }
                 this._handle_dependency(activity, dependency);
             }
-            return;
         }
         for (let child_id of activity.childs) {
             if (visited_set.has(child_id) == false) {

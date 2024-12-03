@@ -1,7 +1,6 @@
 import { ACTIVITY_STATUS, ACTIVITY_DEPENDENCY_TYPE } from "./enums";
 import { add, max, format, differenceInDays, min } from "date-fns";
 
-
 export interface IDependency {
     id: string;
     lag: number;
@@ -46,10 +45,12 @@ export class Activity {
 
     get_duration(): number | null {
         if (this.planned_start_date && this.planned_end_date)
-            return differenceInDays(
-                this.planned_end_date,
-                this.planned_start_date
-            ) + 1;
+            return (
+                differenceInDays(
+                    this.planned_end_date,
+                    this.planned_start_date
+                ) + 1
+            );
         return null;
     }
 
@@ -57,39 +58,24 @@ export class Activity {
         return ACTIVITY_STATUS.ON_TIME;
     }
 
-    set_planned_start_date_by_dependency(date: Date): void {
-        if (this.planned_start_date == undefined) {
-            this.planned_start_date = date;
-        } else {
-            this.planned_start_date = max([
-                date,
-                this.planned_start_date,
-            ])
+    set_planned_start_date(date: Date, is_dependency: boolean = false): void {
+        const func = is_dependency ? max : min;
+        let dates: Date[] = [date];
+        if (this.planned_start_date) {
+            dates.push(this.planned_start_date);
         }
+        this.planned_start_date = func(dates);
+        this.set_planned_end_date(date);
     }
 
     set_planned_end_date(date: Date): void {
-        if (this.planned_end_date == undefined) {
-            this.planned_end_date = date;
-        } else {
-            this.planned_end_date = max([
-                date,
-                this.planned_end_date,
-            ])
+        let dates: Date[] = [date];
+        if (this.planned_start_date) {
+            dates.push(this.planned_start_date);
         }
-        if (this.planned_start_date && this.planned_end_date < this.planned_start_date) {
-            this.planned_end_date = this.planned_start_date;
+        if (this.planned_end_date) {
+            dates.push(this.planned_end_date);
         }
+        this.planned_end_date = max(dates);
     }
-    set_planned_start_date_by_child(date: Date): void {
-        if (this.planned_start_date == null) {
-            this.planned_start_date = date;
-        } else {
-            this.planned_start_date = min([
-                this.planned_start_date,
-                date
-            ]);
-        }
-    }
-
 }

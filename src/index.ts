@@ -48,9 +48,6 @@ export function process_task_data(tree: ITaskData): void {
     return get_task_data_from_schedule(schedule);
 }
 
-
-
-
 let tree: ITaskData = {
     data: [
         {
