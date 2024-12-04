@@ -23,75 +23,6 @@ export class Schedule {
         this.activity_map = activity_map;
     }
 
-    private _handle_dependency(
-        activity: Activity,
-        dependency: IDependency
-    ): void {
-        let dependency_activity: Activity | undefined = this.activity_map.get(
-            dependency.id
-        );
-        if (dependency_activity == undefined) {
-            throw new Schedule.ActivityNotFoundError(dependency.id);
-        }
-        if (dependency_activity.planned_end_date == undefined) {
-            throw new Schedule.WrongDateError(
-                `Planned end date of activity ${dependency.id} is null`
-            );
-        }
-        if (dependency_activity.planned_start_date == undefined) {
-            throw new Schedule.WrongDateError(
-                `Actual start date of activity ${dependency.id} is null`
-            );
-        }
-        if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FS) {
-            activity.set_planned_start_date(
-                add(dependency_activity.planned_end_date, {
-                    days: dependency.lag,
-                }),
-                true
-            );
-        } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.SS) {
-            activity.set_planned_start_date(
-                add(dependency_activity.planned_start_date, {
-                    days: dependency.lag,
-                }),
-                true
-            );
-        } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.FF) {
-            activity.set_planned_end_date(
-                add(dependency_activity.planned_end_date, {
-                    days: dependency.lag,
-                })
-            );
-        } else if (dependency.type == ACTIVITY_DEPENDENCY_TYPE.SF) {
-            activity.set_planned_end_date(
-                add(dependency_activity.planned_start_date, {
-                    days: dependency.lag,
-                })
-            );
-        }
-    }
-
-    private _handle_child(activity: Activity, child_id: string): void {
-        let child_activity: Activity | undefined =
-            this.activity_map.get(child_id);
-        if (child_activity == null) {
-            throw new Schedule.ActivityNotFoundError(child_id);
-        }
-        if (child_activity.planned_start_date == null) {
-            throw new Schedule.WrongDateError(
-                `Planned start date of activity ${child_id} is null`
-            );
-        }
-        if (child_activity.planned_end_date == null) {
-            throw new Schedule.WrongDateError(
-                `Planned end date of activity ${child_id} is null`
-            );
-        }
-        activity.set_planned_start_date(child_activity.planned_start_date);
-        activity.set_planned_end_date(child_activity.planned_end_date);
-    }
-
     private _process_activity(
         activity_id: string,
         visited_set: Set<string>
@@ -106,19 +37,74 @@ export class Schedule {
             );
         }
         if (activity.childs.length == 0) {
+            let planned_start_dates: Date[] = [];
+            let planned_end_dates: Date[] = [];
             for (let dependency of activity.dependencies) {
                 if (visited_set.has(dependency.id) == false) {
                     this._process_activity(dependency.id, visited_set);
                 }
-                this._handle_dependency(activity, dependency);
+                let dependency_activity = this.activity_map.get(dependency.id);
+                if (!dependency_activity) {
+                    throw new Schedule.ActivityNotFoundError(dependency.id);
+                }
+                if (dependency_activity.planned_end_date !== undefined) {
+                    if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FS) {
+                        planned_start_dates.push(
+                            add(dependency_activity.planned_end_date, {
+                                days: dependency.lag,
+                            })
+                        );
+                    } else if (
+                        dependency.type === ACTIVITY_DEPENDENCY_TYPE.FF
+                    ) {
+                        planned_end_dates.push(
+                            add(dependency_activity.planned_end_date, {
+                                days: dependency.lag,
+                            })
+                        );
+                    }
+                } else if (
+                    dependency_activity.planned_start_date !== undefined
+                ) {
+                    if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.SS) {
+                        planned_start_dates.push(
+                            add(dependency_activity.planned_start_date, {
+                                days: dependency.lag,
+                            })
+                        );
+                    } else if (
+                        dependency.type === ACTIVITY_DEPENDENCY_TYPE.SF
+                    ) {
+                        planned_end_dates.push(
+                            add(dependency_activity.planned_start_date, {
+                                days: dependency.lag,
+                            })
+                        );
+                    }
+                }
             }
+            activity.set_planned_start_date(max(planned_start_dates));
+            activity.set_planned_end_date(max(planned_end_dates));
         }
+        let planned_start_dates: Date[] = [];
+        let planned_end_dates: Date[] = [];
         for (let child_id of activity.childs) {
             if (visited_set.has(child_id) == false) {
                 this._process_activity(child_id, visited_set);
             }
-            this._handle_child(activity, child_id);
+            let child_activity = this.activity_map.get(child_id);
+            if (!child_activity) {
+                throw new Schedule.ActivityNotFoundError(child_id);
+            }
+            if (child_activity.planned_start_date) {
+                planned_start_dates.push(child_activity.planned_start_date);
+            }
+            if (child_activity.planned_end_date) {
+                planned_end_dates.push(child_activity.planned_end_date);
+            }
         }
+        activity.set_planned_start_date(min(planned_start_dates));
+        activity.set_planned_end_date(max(planned_end_dates));
         visited_set.add(activity.id);
     }
 
@@ -137,6 +123,6 @@ export class Schedule {
             this.activity_map.get("1")?.get_projected_start_date(),
             this.activity_map.get("1")?.get_projected_end_date()
         );
-        console.log(this.activity_map.get("1")?.get_status())
+        console.log(this.activity_map.get("1")?.get_status());
     }
 }

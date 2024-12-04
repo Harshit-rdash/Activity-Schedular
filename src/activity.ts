@@ -20,6 +20,7 @@ export class Activity {
     static ActivityBaseError = class extends Error {};
     static PlannedDateMissingError = class extends Activity.ActivityBaseError {};
     static StatusConditionNotMatchedError = class extends Activity.ActivityBaseError {};
+    static WrongInputEndDateError = class extends Activity.ActivityBaseError {};
 
     id: string;
     planned_start_date?: Date;
@@ -75,25 +76,23 @@ export class Activity {
         return Math.floor(duration * (1 - this.completion_precentage / 100));
     }
 
-    set_planned_start_date(date: Date, is_dependency: boolean = false): void {
-        const func = is_dependency ? max : min;
-        let dates: Date[] = [date];
-        if (this.planned_start_date) {
-            dates.push(this.planned_start_date);
+    set_planned_start_date(date: Date): void {
+        this.planned_start_date = date;
+        if (this.planned_end_date && isBefore(this.planned_end_date, date)) {
+            this.set_planned_end_date(date);
         }
-        this.planned_start_date = func(dates);
-        this.set_planned_end_date(date);
     }
 
     set_planned_end_date(date: Date): void {
-        let dates: Date[] = [date];
-        if (this.planned_start_date) {
-            dates.push(this.planned_start_date);
+        if (
+            this.planned_start_date &&
+            isBefore(date, this.planned_start_date)
+        ) {
+            throw new Activity.ActivityBaseError(
+                `Input end date is less then start date, please set start date first, end_date: ${this.planned_end_date}, input: ${date}`
+            );
         }
-        if (this.planned_end_date) {
-            dates.push(this.planned_end_date);
-        }
-        this.planned_end_date = max(dates);
+        this.planned_end_date = date;
     }
 
     get_projected_start_date(): Date {
