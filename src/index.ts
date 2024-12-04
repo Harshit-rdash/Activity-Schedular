@@ -21,8 +21,6 @@ export interface IGanttTask {
     projected_end_date?: string;
     // slack?: number;
     // color?: string;
-    // status?: ACTIVITY_STATUS;
-    // type?: "project" | "task";
     // open?: boolean;
 }
 

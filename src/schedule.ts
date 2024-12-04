@@ -3,11 +3,7 @@ import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
 import { add, max, format, differenceInDays, min } from "date-fns";
 
 export class Schedule {
-    static ScheduleBaseError = class extends Error {
-        constructor(message: string) {
-            super(message);
-        }
-    };
+    static ScheduleBaseError = class extends Error {};
 
     static WrongScheduleError = class extends Schedule.ScheduleBaseError {};
 
@@ -31,7 +27,6 @@ export class Schedule {
         activity: Activity,
         dependency: IDependency
     ): void {
-
         let dependency_activity: Activity | undefined = this.activity_map.get(
             dependency.id
         );
@@ -93,9 +88,7 @@ export class Schedule {
                 `Planned end date of activity ${child_id} is null`
             );
         }
-        activity.set_planned_start_date(
-            child_activity.planned_start_date
-        );
+        activity.set_planned_start_date(child_activity.planned_start_date);
         activity.set_planned_end_date(child_activity.planned_end_date);
     }
 
@@ -135,9 +128,15 @@ export class Schedule {
 
         console.log("Processing done");
         console.log(
-            "Schedule Start and End Dates",
+            "Schedule Planned Start and End Dates",
             this.activity_map.get(this.root_id)?.planned_start_date,
             this.activity_map.get(this.root_id)?.planned_end_date
         );
+        console.log(
+            "Schedule Projected Start and End Dates",
+            this.activity_map.get("1")?.get_projected_start_date(),
+            this.activity_map.get("1")?.get_projected_end_date()
+        );
+        console.log(this.activity_map.get("1")?.get_status())
     }
 }
