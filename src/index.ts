@@ -1,36 +1,12 @@
 import { Schedule } from "./schedule";
-import { ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_STATUS } from "./enums";
+import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
 import {
     get_schedule_from_task_data,
     get_task_data_from_schedule,
+    ITaskData,
 } from "./parser";
 
-export interface IGanttTask {
-    id: string;
-    start_date?: string;
-    end_date?: string;
-    duration?: number;
-    progress?: number;
-    parent?: string;
-    actual_start_date?: string;
-    actual_end_date?: string;
-}
-
-export interface ITaskLink {
-    // id: string;
-    source: string;
-    target: string;
-    type: ACTIVITY_DEPENDENCY_TYPE;
-    lag: number;
-}
-
-export interface ITaskData {
-    data: IGanttTask[];
-    links: ITaskLink[];
-    root_id: string;
-}
-
-export function process_task_data(tree: ITaskData): void {
+export function process_task_data(tree: ITaskData): ITaskData {
     console.log("Tree Received", tree);
     let schedule: Schedule = get_schedule_from_task_data(tree);
     console.log("Schedule Created, Processing started");
@@ -55,7 +31,9 @@ export function process_task_data(tree: ITaskData): void {
         schedule.activity_map.get("1")?.completion_percentage,
         schedule.activity_map.get("1")?.get_status()
     );
-    // return get_task_data_from_schedule(schedule);
+    let result_tree = get_task_data_from_schedule(schedule);
+    console.log("Result Tree", result_tree);
+    return result_tree;
 }
 
 let tree: ITaskData = {

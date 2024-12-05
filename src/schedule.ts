@@ -4,15 +4,8 @@ import { add, max, format, differenceInDays, min } from "date-fns";
 
 export class Schedule {
     static ScheduleBaseError = class extends Error {};
-
     static WrongScheduleError = class extends Schedule.ScheduleBaseError {};
-
-    static ActivityNotFoundError = class extends Schedule.ScheduleBaseError {
-        constructor(activity_id: string) {
-            super(`Activity with id ${activity_id} not found`);
-        }
-    };
-
+    static ActivityNotFoundError = class extends Schedule.ScheduleBaseError {};
     static WrongDateError = class extends Schedule.ScheduleBaseError {};
 
     activity_map: Map<string, Activity>;
@@ -29,7 +22,9 @@ export class Schedule {
     ): void {
         let activity = this.activity_map.get(activity_id);
         if (activity == null) {
-            throw new Schedule.ActivityNotFoundError(activity_id);
+            throw new Schedule.ActivityNotFoundError(
+                `Activity with id ${activity_id} not found`
+            );
         }
         if (activity.childs.length > 0 && activity.dependencies.length > 0) {
             throw new Schedule.WrongScheduleError(
@@ -47,40 +42,31 @@ export class Schedule {
                 if (!dependency_activity) {
                     throw new Schedule.ActivityNotFoundError(dependency.id);
                 }
-                if (dependency_activity.planned_end_date !== undefined) {
-                    if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FS) {
-                        planned_start_dates.push(
-                            add(dependency_activity.planned_end_date, {
-                                days: dependency.lag,
-                            })
-                        );
-                    } else if (
-                        dependency.type === ACTIVITY_DEPENDENCY_TYPE.FF
-                    ) {
-                        planned_end_dates.push(
-                            add(dependency_activity.planned_end_date, {
-                                days: dependency.lag,
-                            })
-                        );
-                    }
-                } else if (
-                    dependency_activity.planned_start_date !== undefined
-                ) {
-                    if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.SS) {
-                        planned_start_dates.push(
-                            add(dependency_activity.planned_start_date, {
-                                days: dependency.lag,
-                            })
-                        );
-                    } else if (
-                        dependency.type === ACTIVITY_DEPENDENCY_TYPE.SF
-                    ) {
-                        planned_end_dates.push(
-                            add(dependency_activity.planned_start_date, {
-                                days: dependency.lag,
-                            })
-                        );
-                    }
+
+                if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FS) {
+                    planned_start_dates.push(
+                        add(dependency_activity.get_planned_end_date(), {
+                            days: dependency.lag,
+                        })
+                    );
+                } else if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FF) {
+                    planned_end_dates.push(
+                        add(dependency_activity.get_planned_end_date(), {
+                            days: dependency.lag,
+                        })
+                    );
+                } else if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.SS) {
+                    planned_start_dates.push(
+                        add(dependency_activity.get_planned_start_date(), {
+                            days: dependency.lag,
+                        })
+                    );
+                } else if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.SF) {
+                    planned_end_dates.push(
+                        add(dependency_activity.get_planned_start_date(), {
+                            days: dependency.lag,
+                        })
+                    );
                 }
             }
             if (planned_start_dates.length > 0) {
@@ -105,24 +91,17 @@ export class Schedule {
                 if (!child_activity) {
                     throw new Schedule.ActivityNotFoundError(child_id);
                 }
-                if (child_activity.planned_start_date) {
-                    planned_start_dates.push(child_activity.planned_start_date);
+                planned_start_dates.push(child_activity.get_planned_start_date());
+                planned_end_dates.push(child_activity.get_planned_end_date());
+                let actual_start_date = child_activity.get_actual_start_date();
+                if (actual_start_date) {
+                    actual_start_dates.push(actual_start_date);
                 }
-                if (child_activity.planned_end_date) {
-                    planned_end_dates.push(child_activity.planned_end_date);
-                }
-                if (child_activity.actual_start_date) {
-                    actual_start_dates.push(child_activity.actual_start_date);
-                }
-                if (child_activity.actual_end_date) {
-                    actual_end_dates.push(child_activity.actual_end_date);
+                let actual_end_date = child_activity.get_actual_end_date();
+                if (actual_end_date) {
+                    actual_end_dates.push(actual_end_date);
                 }
                 let child_duration = child_activity.get_duration();
-                if (child_duration === null) {
-                    throw new Schedule.WrongDateError(
-                        `Activity ${child_id} has wrong planned dates`
-                    );
-                }
                 weighted_completion_sum +=
                     child_activity.completion_percentage * child_duration;
                 total_duration += child_duration;
@@ -151,7 +130,14 @@ export class Schedule {
     public process() {
         let visited_set = new Set<string>();
         this._process_activity(this.root_id, visited_set);
-
         console.log("Processing done");
+    }
+
+    public get_root(): string {
+        return this.root_id;
+    }
+
+    public get_activities(): Map<string, Activity> {
+        return this.activity_map;
     }
 }

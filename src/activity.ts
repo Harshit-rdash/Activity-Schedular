@@ -27,6 +27,7 @@ export class Activity {
     childs: Array<string>;
     dependencies: Array<IDependency>;
     completion_percentage: number;
+    parent_id?: string;
 
     constructor(
         id: string,
@@ -36,7 +37,8 @@ export class Activity {
         actual_end_date?: Date,
         childs: Array<string> = [],
         dependencies: Array<IDependency> = [],
-        completion_percentage: number = 0
+        completion_percentage: number = 0,
+        parent_id?: string
     ) {
         this.id = id;
         this.planned_start_date = planned_start_date;
@@ -46,6 +48,7 @@ export class Activity {
         this.childs = childs;
         this.dependencies = dependencies;
         this.completion_percentage = completion_percentage;
+        this.parent_id = parent_id;
     }
 
     set_planned_start_date(date: Date): void {
@@ -83,7 +86,7 @@ export class Activity {
         this.actual_start_date = date;
     }
 
-    get_duration(): number | null {
+    get_duration(): number {
         if (this.planned_start_date && this.planned_end_date)
             return (
                 differenceInDays(
@@ -91,14 +94,13 @@ export class Activity {
                     this.planned_start_date
                 ) + 1
             );
-        return null;
+        throw new Activity.PlannedDateMissingError(
+            `Planned start or end date is missing activity_id: ${this.id}`
+        );
     }
 
-    get_remaining_duration(): number | null {
+    get_remaining_duration(): number {
         let duration = this.get_duration();
-        if (duration === null) {
-            return null;
-        }
         return Math.floor(duration * (1 - this.completion_percentage / 100));
     }
 
@@ -148,6 +150,40 @@ export class Activity {
         throw new Activity.StatusConditionNotMatchedError();
     }
 
+    get_planned_start_date(): Date {
+        if (this.planned_start_date === undefined) {
+            throw new Activity.PlannedDateMissingError(
+                `planned_start_date is missing activity_id: ${this.id}`
+            );
+        }
+        return this.planned_start_date;
+    }
+
+    get_planned_end_date(): Date {
+        if (this.planned_end_date === undefined) {
+            throw new Activity.PlannedDateMissingError(
+                `planned_end_date is missing activity_id: ${this.id}`
+            );
+        }
+        return this.planned_end_date;
+    }
+
+    get_actual_start_date(): Date | undefined {
+        return this.actual_start_date;
+    }
+
+    get_actual_end_date(): Date | undefined {
+        return this.actual_end_date;
+    }
+
+    get_completion_percentage(): number {
+        return this.completion_percentage;
+    }
+
+    get_parent_id(): string | undefined {
+        return this.parent_id;
+    }
+
     is_on_time(): boolean {
         if (this.planned_end_date === undefined) {
             throw new Activity.PlannedDateMissingError();
@@ -173,7 +209,9 @@ export class Activity {
 
     is_overdue(): boolean {
         if (this.planned_start_date === undefined) {
-            throw new Activity.PlannedDateMissingError(`Planned start date is missing, activity_id: ${this.id}`);
+            throw new Activity.PlannedDateMissingError(
+                `Planned start date is missing, activity_id: ${this.id}`
+            );
         }
         if (isAfter(this.get_projected_start_date(), this.planned_start_date)) {
             return true;
