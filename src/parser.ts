@@ -14,7 +14,7 @@ export interface IGanttTask {
     actual_end_date?: string;
 }
 
-export interface ITaskLink {
+export interface IGanttTaskLink {
     source: string;
     target: string;
     type: ACTIVITY_DEPENDENCY_TYPE;
@@ -23,11 +23,11 @@ export interface ITaskLink {
 
 export interface ITaskData {
     data: IGanttTask[];
-    links: ITaskLink[];
+    links: IGanttTaskLink[];
     root_id: string;
 }
 
-export function get_schedule_from_task_data(tree: ITaskData) {
+export function get_schedule_from_gantt_task_data(tree: ITaskData) {
     let activity_map: Map<string, Activity> = new Map<string, Activity>();
     let schedule: Schedule;
     for (let task of tree.data) {
@@ -75,9 +75,9 @@ export function get_schedule_from_task_data(tree: ITaskData) {
     return schedule;
 }
 
-export function get_task_data_from_schedule(schedule: Schedule): ITaskData {
+export function get_gantt_task_data_from_schedule(schedule: Schedule): ITaskData {
     let data: IGanttTask[] = [];
-    let links: ITaskLink[] = [];
+    let links: IGanttTaskLink[] = [];
     let activity_map = schedule.get_activities();
     for (let activity of activity_map.values()) {
         let actual_start_date = activity.get_actual_start_date();
@@ -111,3 +111,5 @@ export function get_task_data_from_schedule(schedule: Schedule): ITaskData {
         root_id: schedule.root_id,
     };
 }
+
+

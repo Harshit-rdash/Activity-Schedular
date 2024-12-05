@@ -1,14 +1,14 @@
 import { Schedule } from "./schedule";
 import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
 import {
-    get_schedule_from_task_data,
-    get_task_data_from_schedule,
+    get_schedule_from_gantt_task_data,
+    get_gantt_task_data_from_schedule,
     ITaskData,
 } from "./parser";
 
-export function process_task_data(tree: ITaskData): ITaskData {
+export function process_gantt_task_data(tree: ITaskData): ITaskData {
     console.log("Tree Received", tree);
-    let schedule: Schedule = get_schedule_from_task_data(tree);
+    let schedule: Schedule = get_schedule_from_gantt_task_data(tree);
     console.log("Schedule Created, Processing started");
     schedule.process();
     console.log(
@@ -31,7 +31,7 @@ export function process_task_data(tree: ITaskData): ITaskData {
         schedule.activity_map.get("1")?.completion_percentage,
         schedule.activity_map.get("1")?.get_status()
     );
-    let result_tree = get_task_data_from_schedule(schedule);
+    let result_tree = get_gantt_task_data_from_schedule(schedule);
     console.log("Result Tree", result_tree);
     return result_tree;
 }
@@ -74,4 +74,4 @@ let tree: ITaskData = {
     root_id: "1",
 };
 
-process_task_data(tree);
+process_gantt_task_data(tree);
