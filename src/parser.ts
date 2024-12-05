@@ -14,12 +14,6 @@ export function get_schedule_from_task_data(tree: ITaskData) {
                 ? new Date(task.actual_start_date)
                 : undefined,
             task.actual_end_date ? new Date(task.actual_end_date) : undefined,
-            task.projected_start_date
-                ? new Date(task.projected_start_date)
-                : undefined,
-            task.projected_end_date
-                ? new Date(task.projected_end_date)
-                : undefined,
             [],
             [],
             task.progress ? task.progress : 0

@@ -1,10 +1,7 @@
 import { ACTIVITY_STATUS, ACTIVITY_DEPENDENCY_TYPE } from "./enums";
 import {
     add,
-    max,
-    format,
     differenceInDays,
-    min,
     isBefore,
     isAfter,
     startOfDay,
@@ -27,8 +24,6 @@ export class Activity {
     planned_end_date?: Date;
     actual_start_date?: Date;
     actual_end_date?: Date;
-    projected_start_date?: Date;
-    projected_end_date?: Date;
     childs: Array<string>;
     dependencies: Array<IDependency>;
     completion_percentage: number;
@@ -39,8 +34,6 @@ export class Activity {
         planned_end_date?: Date,
         actual_start_date?: Date,
         actual_end_date?: Date,
-        projected_start_date?: Date,
-        projected_end_date?: Date,
         childs: Array<string> = [],
         dependencies: Array<IDependency> = [],
         completion_percentage: number = 0
@@ -50,8 +43,6 @@ export class Activity {
         this.planned_end_date = planned_end_date;
         this.actual_start_date = actual_start_date;
         this.actual_end_date = actual_end_date;
-        this.projected_start_date = projected_start_date;
-        this.projected_end_date = projected_end_date;
         this.childs = childs;
         this.dependencies = dependencies;
         this.completion_percentage = completion_percentage;
@@ -76,7 +67,7 @@ export class Activity {
         this.planned_end_date = date;
     }
 
-    set_completion_percentage(completion_percentage: number) : void {
+    set_completion_percentage(completion_percentage: number): void {
         this.completion_percentage = completion_percentage;
     }
 
@@ -87,7 +78,7 @@ export class Activity {
         if (this.actual_start_date && isBefore(date, this.actual_start_date)) {
             throw new Activity.WrongInputEndDateError(
                 "Input actual end date is before actual start date, please set actual start date first"
-            )
+            );
         }
         this.actual_start_date = date;
     }
@@ -141,8 +132,8 @@ export class Activity {
             return this.actual_end_date;
         }
         let duration = this.get_remaining_duration();
-        return add(this.get_projected_start_date(), {
-            days: duration ? duration : 0,
+        return add(Date(), {
+            days: duration ? duration - 1 : 0,
         });
     }
 
@@ -162,21 +153,8 @@ export class Activity {
             throw new Activity.PlannedDateMissingError();
         }
         if (
-            this.actual_start_date === undefined &&
-            this.planned_end_date !== undefined &&
-            isBefore(
-                startOfDay(add(Date(), { days: -1 })),
-                this.planned_end_date
-            )
-        ) {
-            return true;
-        } else if (
-            this.actual_start_date &&
-            this.actual_end_date &&
-            isBefore(
-                add(this.actual_end_date, { days: -1 }),
-                this.planned_end_date
-            )
+            isBefore(this.get_projected_end_date(), this.planned_end_date) ||
+            isEqual(this.get_projected_end_date(), this.planned_end_date)
         ) {
             return true;
         }
@@ -187,28 +165,17 @@ export class Activity {
         if (this.planned_end_date === undefined) {
             throw new Activity.PlannedDateMissingError();
         }
-        if (
-            this.actual_end_date === undefined &&
-            isAfter(startOfDay(Date()), this.planned_end_date)
-        ) {
-            return true;
-        } else if (
-            this.actual_end_date &&
-            isAfter(this.actual_end_date, this.planned_end_date)
-        ) {
+        if (isAfter(this.get_projected_end_date(), this.planned_end_date)) {
             return true;
         }
         return false;
     }
 
     is_overdue(): boolean {
-        if (this.planned_end_date === undefined) {
-            throw new Activity.PlannedDateMissingError();
+        if (this.planned_start_date === undefined) {
+            throw new Activity.PlannedDateMissingError(`Planned start date is missing, activity_id: ${this.id}`);
         }
-        if (
-            this.actual_start_date === undefined &&
-            isAfter(startOfDay(Date()), this.planned_end_date)
-        ) {
+        if (isAfter(this.get_projected_start_date(), this.planned_start_date)) {
             return true;
         }
         return false;

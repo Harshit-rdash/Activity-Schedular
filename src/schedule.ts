@@ -83,55 +83,68 @@ export class Schedule {
                     }
                 }
             }
-            activity.set_planned_start_date(max(planned_start_dates));
-            activity.set_planned_end_date(max(planned_end_dates));
+            if (planned_start_dates.length > 0) {
+                activity.set_planned_start_date(max(planned_start_dates));
+            }
+            if (planned_end_dates.length > 0) {
+                activity.set_planned_end_date(max(planned_end_dates));
+            }
         }
-        let planned_start_dates: Date[] = [];
-        let planned_end_dates: Date[] = [];
-        let actual_start_dates: Date[] = [];
-        let actual_end_dates: Date[] = [];
-        let total_duration: number = 0;
-        let weighted_completion_sum: number = 0;
-        for (let child_id of activity.childs) {
-            if (visited_set.has(child_id) == false) {
-                this._process_activity(child_id, visited_set);
+        if (activity.childs.length > 0) {
+            let planned_start_dates: Date[] = [];
+            let planned_end_dates: Date[] = [];
+            let actual_start_dates: Date[] = [];
+            let actual_end_dates: Date[] = [];
+            let total_duration: number = 0;
+            let weighted_completion_sum: number = 0;
+            for (let child_id of activity.childs) {
+                if (visited_set.has(child_id) == false) {
+                    this._process_activity(child_id, visited_set);
+                }
+                let child_activity = this.activity_map.get(child_id);
+                if (!child_activity) {
+                    throw new Schedule.ActivityNotFoundError(child_id);
+                }
+                if (child_activity.planned_start_date) {
+                    planned_start_dates.push(child_activity.planned_start_date);
+                }
+                if (child_activity.planned_end_date) {
+                    planned_end_dates.push(child_activity.planned_end_date);
+                }
+                if (child_activity.actual_start_date) {
+                    actual_start_dates.push(child_activity.actual_start_date);
+                }
+                if (child_activity.actual_end_date) {
+                    actual_end_dates.push(child_activity.actual_end_date);
+                }
+                let child_duration = child_activity.get_duration();
+                if (child_duration === null) {
+                    throw new Schedule.WrongDateError(
+                        `Activity ${child_id} has wrong planned dates`
+                    );
+                }
+                weighted_completion_sum +=
+                    child_activity.completion_percentage * child_duration;
+                total_duration += child_duration;
             }
-            let child_activity = this.activity_map.get(child_id);
-            if (!child_activity) {
-                throw new Schedule.ActivityNotFoundError(child_id);
+            if (planned_start_dates.length > 0) {
+                activity.set_planned_start_date(min(planned_start_dates));
             }
-            if (child_activity.planned_start_date) {
-                planned_start_dates.push(child_activity.planned_start_date);
+            if (planned_end_dates.length > 0) {
+                activity.set_planned_end_date(max(planned_end_dates));
             }
-            if (child_activity.planned_end_date) {
-                planned_end_dates.push(child_activity.planned_end_date);
+            if (actual_start_dates.length > 0) {
+                activity.set_actual_start_date(min(actual_start_dates));
             }
-            if (child_activity.actual_start_date) {
-                actual_start_dates.push(child_activity.actual_start_date);
+            let completion_percentage = weighted_completion_sum
+                ? weighted_completion_sum / total_duration
+                : 0;
+            activity.set_completion_percentage(completion_percentage);
+            if (completion_percentage === 100) {
+                activity.set_actual_end_date(max(actual_end_dates));
             }
-            if (child_activity.actual_end_date) {
-                actual_end_dates.push(child_activity.actual_end_date);
-            }
-            let child_duration = child_activity.get_duration();
-            if (child_duration === null) {
-                throw new Schedule.WrongDateError(
-                    `Activity ${child_id} has wrong planned dates`
-                );
-            }
-            weighted_completion_sum +=
-                child_activity.completion_percentage * child_duration;
-            total_duration += child_duration;
         }
-        activity.set_planned_start_date(min(planned_start_dates));
-        activity.set_planned_end_date(max(planned_end_dates));
-        if (actual_start_dates.length > 0) {
-            activity.set_actual_start_date(min(actual_start_dates));
-        }
-        let completion_percentage = weighted_completion_sum / total_duration;
-        activity.set_completion_percentage(completion_percentage);
-        if (completion_percentage === 100) {
-            activity.set_actual_end_date(max(actual_end_dates));
-        }
+
         visited_set.add(activity.id);
     }
 
@@ -140,16 +153,5 @@ export class Schedule {
         this._process_activity(this.root_id, visited_set);
 
         console.log("Processing done");
-        console.log(
-            "Schedule Planned Start and End Dates",
-            this.activity_map.get(this.root_id)?.planned_start_date,
-            this.activity_map.get(this.root_id)?.planned_end_date
-        );
-        console.log(
-            "Schedule Projected Start and End Dates",
-            this.activity_map.get("1")?.get_projected_start_date(),
-            this.activity_map.get("1")?.get_projected_end_date()
-        );
-        console.log(this.activity_map.get("1")?.get_status());
     }
 }
