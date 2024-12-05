@@ -31,7 +31,7 @@ export class Activity {
     projected_end_date?: Date;
     childs: Array<string>;
     dependencies: Array<IDependency>;
-    completion_precentage: number;
+    completion_percentage: number;
 
     constructor(
         id: string,
@@ -43,7 +43,7 @@ export class Activity {
         projected_end_date?: Date,
         childs: Array<string> = [],
         dependencies: Array<IDependency> = [],
-        completion_precentage: number = 0
+        completion_percentage: number = 0
     ) {
         this.id = id;
         this.planned_start_date = planned_start_date;
@@ -54,26 +54,7 @@ export class Activity {
         this.projected_end_date = projected_end_date;
         this.childs = childs;
         this.dependencies = dependencies;
-        this.completion_precentage = completion_precentage;
-    }
-
-    get_duration(): number | null {
-        if (this.planned_start_date && this.planned_end_date)
-            return (
-                differenceInDays(
-                    this.planned_end_date,
-                    this.planned_start_date
-                ) + 1
-            );
-        return null;
-    }
-
-    get_remaining_duration(): number | null {
-        let duration = this.get_duration();
-        if (duration === null) {
-            return null;
-        }
-        return Math.floor(duration * (1 - this.completion_precentage / 100));
+        this.completion_percentage = completion_percentage;
     }
 
     set_planned_start_date(date: Date): void {
@@ -93,6 +74,41 @@ export class Activity {
             );
         }
         this.planned_end_date = date;
+    }
+
+    set_completion_percentage(completion_percentage: number) : void {
+        this.completion_percentage = completion_percentage;
+    }
+
+    set_actual_start_date(date: Date): void {
+        this.actual_start_date = date;
+    }
+    set_actual_end_date(date: Date): void {
+        if (this.actual_start_date && isBefore(date, this.actual_start_date)) {
+            throw new Activity.WrongInputEndDateError(
+                "Input actual end date is before actual start date, please set actual start date first"
+            )
+        }
+        this.actual_start_date = date;
+    }
+
+    get_duration(): number | null {
+        if (this.planned_start_date && this.planned_end_date)
+            return (
+                differenceInDays(
+                    this.planned_end_date,
+                    this.planned_start_date
+                ) + 1
+            );
+        return null;
+    }
+
+    get_remaining_duration(): number | null {
+        let duration = this.get_duration();
+        if (duration === null) {
+            return null;
+        }
+        return Math.floor(duration * (1 - this.completion_percentage / 100));
     }
 
     get_projected_start_date(): Date {

@@ -88,6 +88,10 @@ export class Schedule {
         }
         let planned_start_dates: Date[] = [];
         let planned_end_dates: Date[] = [];
+        let actual_start_dates: Date[] = [];
+        let actual_end_dates: Date[] = [];
+        let total_duration: number = 0;
+        let weighted_completion_sum: number = 0;
         for (let child_id of activity.childs) {
             if (visited_set.has(child_id) == false) {
                 this._process_activity(child_id, visited_set);
@@ -102,9 +106,32 @@ export class Schedule {
             if (child_activity.planned_end_date) {
                 planned_end_dates.push(child_activity.planned_end_date);
             }
+            if (child_activity.actual_start_date) {
+                actual_start_dates.push(child_activity.actual_start_date);
+            }
+            if (child_activity.actual_end_date) {
+                actual_end_dates.push(child_activity.actual_end_date);
+            }
+            let child_duration = child_activity.get_duration();
+            if (child_duration === null) {
+                throw new Schedule.WrongDateError(
+                    `Activity ${child_id} has wrong planned dates`
+                );
+            }
+            weighted_completion_sum +=
+                child_activity.completion_percentage * child_duration;
+            total_duration += child_duration;
         }
         activity.set_planned_start_date(min(planned_start_dates));
         activity.set_planned_end_date(max(planned_end_dates));
+        if (actual_start_dates.length > 0) {
+            activity.set_actual_start_date(min(actual_start_dates));
+        }
+        let completion_percentage = weighted_completion_sum / total_duration;
+        activity.set_completion_percentage(completion_percentage);
+        if (completion_percentage === 100) {
+            activity.set_actual_end_date(max(actual_end_dates));
+        }
         visited_set.add(activity.id);
     }
 
