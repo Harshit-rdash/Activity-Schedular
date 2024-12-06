@@ -12,6 +12,9 @@ export interface IGanttTask {
     parent?: string;
     actual_start_date?: string;
     actual_end_date?: string;
+    projected_start_date?: string;
+    projected_end_date?: string;
+    status?: string;
 }
 
 export interface IGanttTaskLink {
@@ -29,7 +32,6 @@ export interface ITaskData {
 
 export function get_schedule_from_gantt_task_data(tree: ITaskData) {
     let activity_map: Map<string, Activity> = new Map<string, Activity>();
-    let schedule: Schedule;
     for (let task of tree.data) {
         let activity = new Activity(
             task.id,
@@ -71,7 +73,7 @@ export function get_schedule_from_gantt_task_data(tree: ITaskData) {
         };
         activity.dependencies.push(dependency);
     }
-    schedule = new Schedule(tree.root_id, activity_map);
+    let schedule = new Schedule(tree.root_id, activity_map);
     return schedule;
 }
 
@@ -95,6 +97,15 @@ export function get_gantt_task_data_from_schedule(schedule: Schedule): ITaskData
             duration: activity.get_duration(),
             progress: activity.completion_percentage,
             parent: activity.parent_id,
+            projected_start_date: format(
+                activity.get_projected_start_date(),
+                "yyyy-MM-dd"
+            ),
+            projected_end_date: format(
+                activity.get_projected_end_date(),
+                "yyyy-MM-dd"
+            ),
+            status: activity.get_status(),
         });
         for (let dependency of activity.dependencies) {
             links.push({
@@ -113,3 +124,128 @@ export function get_gantt_task_data_from_schedule(schedule: Schedule): ITaskData
 }
 
 
+export interface IActivityDependencyData {
+    dependency_uuid: string;
+    lag: number;
+    type: ACTIVITY_DEPENDENCY_TYPE;
+}
+
+export interface IActivityData {
+    uuid: string;
+    parent_uuid?: string;
+    planned_start_date?: string;
+    planned_end_date?: string;
+    duration?: number;
+    completion_percentage?: number;
+    actual_start_date?: string;
+    actual_end_date?: string;
+    dependencies: IActivityDependencyData[];
+    projected_start_date?: string;
+    projected_end_date?: string;
+    status?: string;
+}
+
+export interface IScheduleData {
+    uuid: string;
+    activities: IActivityData[];
+}
+
+
+
+export function get_schedule_from_schedule_data(schedule_data: IScheduleData) {
+    let activity_map: Map<string, Activity> = new Map<string, Activity>();
+    for (let activity_data of schedule_data.activities) {
+        let dependencies: IDependency[] = [];
+        for (let dependency of activity_data.dependencies) {
+            dependencies.push({
+                id: dependency.dependency_uuid,
+                lag: dependency.lag,
+                type: dependency.type,
+            });
+        }
+        let activity = new Activity(
+            activity_data.uuid,
+            activity_data.planned_start_date
+                ? new Date(activity_data.planned_start_date)
+                : undefined,
+            activity_data.planned_end_date
+                ? new Date(activity_data.planned_end_date)
+                : undefined,
+            activity_data.actual_start_date
+                ? new Date(activity_data.actual_start_date)
+                : undefined,
+            activity_data.actual_end_date
+                ? new Date(activity_data.actual_end_date)
+                : undefined,
+            [],
+            dependencies,
+            activity_data.completion_percentage
+                ? activity_data.completion_percentage
+                : 0,
+            activity_data.parent_uuid,
+        );
+        activity_map.set(activity_data.uuid, activity);
+    }
+    for (let activity_data of schedule_data.activities) {
+        if (activity_data.parent_uuid == undefined) {
+            continue;
+        }
+        let activity: Activity | undefined = activity_map.get(
+            activity_data.parent_uuid
+        );
+        if (activity === undefined) {
+            throw new Error("Parent not found");
+        }
+        activity.childs.push(activity_data.uuid);
+    }
+    let schedule = new Schedule(schedule_data.uuid, activity_map);
+    return schedule;
+}
+
+
+export function get_schedule_data_from_schedule(schedule: Schedule): IScheduleData {
+    let activities :IActivityData[] = [];
+    let activity_map = schedule.get_activities();
+    for (let activity of activity_map.values()) {
+        let dependencies: IActivityDependencyData[] = [];
+        for (let dependency of activity.dependencies) {
+            dependencies.push({
+                dependency_uuid: dependency.id,
+                lag: dependency.lag,
+                type: dependency.type,
+            });
+        }
+        activities.push({
+            uuid: activity.id,
+            parent_uuid: activity.parent_id,
+            planned_start_date: activity.planned_start_date
+                ? format(activity.planned_start_date, "yyyy-MM-dd")
+                : undefined,
+            planned_end_date: activity.planned_end_date
+                ? format(activity.planned_end_date, "yyyy-MM-dd")
+                : undefined,
+            duration: activity.get_duration(),
+            completion_percentage: activity.completion_percentage,
+            actual_start_date: activity.actual_start_date
+                ? format(activity.actual_start_date, "yyyy-MM-dd")
+                : undefined,
+            actual_end_date: activity.actual_end_date
+                ? format(activity.actual_end_date, "yyyy-MM-dd")
+                : undefined,
+            dependencies: dependencies,
+            projected_start_date: format(
+                activity.get_projected_start_date(),
+                "yyyy-MM-dd"
+            ),
+            projected_end_date: format(
+                activity.get_projected_end_date(),
+                "yyyy-MM-dd"
+            ),
+            status: activity.get_status(),
+        });
+    }
+    return {
+        uuid: schedule.root_id,
+        activities: activities,
+    }
+}
