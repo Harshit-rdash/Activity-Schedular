@@ -7,7 +7,17 @@ import {
     get_schedule_from_schedule_data,
     get_schedule_data_from_schedule,
     IScheduleData,
+    IActivityDependencyData,
+    IActivityData,
 } from "./parser";
+
+export {
+    ITaskData,
+    ACTIVITY_DEPENDENCY_TYPE,
+    IActivityDependencyData,
+    IActivityData,
+    IScheduleData,
+};
 
 export function process_gantt_task_data(tree: ITaskData): ITaskData {
     console.log("Tree Received", tree);
@@ -39,9 +49,9 @@ export function process_gantt_task_data(tree: ITaskData): ITaskData {
     return result_tree;
 }
 
-
-
-export function process_project_schedule_data(schedule_data: IScheduleData): IScheduleData {
+export function process_project_schedule_data(
+    schedule_data: IScheduleData
+): IScheduleData {
     let schedule = get_schedule_from_schedule_data(schedule_data);
     schedule.process();
     console.log(
@@ -64,49 +74,46 @@ export function process_project_schedule_data(schedule_data: IScheduleData): ISc
         schedule.activity_map.get("1")?.completion_percentage,
         schedule.activity_map.get("1")?.get_status()
     );
-    let final_schedule_data = get_schedule_data_from_schedule(
-        schedule
-    )
+    let final_schedule_data = get_schedule_data_from_schedule(schedule);
     return final_schedule_data;
-};
+}
 
+// let tree: ITaskData = {
+//     data: [
+//         {
+//             id: "1",
+//             // start_date: "2024-12-01",
+//             // end_date: "2024-12-05",
+//             duration: 0,
+//             progress: 0,
+//         },
+//         {
+//             id: "2",
+//             start_date: "2024-12-01",
+//             end_date: "2024-12-05",
+//             // actual_start_date: "2024-12-01",
+//             parent: "1",
+//             // progress: 50,
+//         },
+//         {
+//             id: "3",
+//             start_date: "2024-12-01",
+//             end_date: "2024-12-05",
+//             actual_start_date: "2024-12-01",
+//             duration: 5,
+//             parent: "1",
+//             progress: 50,
+//         },
+//     ],
+//     links: [
+//         {
+//             source: "3",
+//             target: "2",
+//             lag: 1,
+//             type: ACTIVITY_DEPENDENCY_TYPE.FS,
+//         },
+//     ],
+//     root_id: "1",
+// };
 
-let tree: ITaskData = {
-    data: [
-        {
-            id: "1",
-            // start_date: "2024-12-01",
-            // end_date: "2024-12-05",
-            duration: 0,
-            progress: 0,
-        },
-        {
-            id: "2",
-            start_date: "2024-12-01",
-            end_date: "2024-12-05",
-            // actual_start_date: "2024-12-01",
-            parent: "1",
-            // progress: 50,
-        },
-        {
-            id: "3",
-            start_date: "2024-12-01",
-            end_date: "2024-12-05",
-            actual_start_date: "2024-12-01",
-            duration: 5,
-            parent: "1",
-            progress: 50,
-        },
-    ],
-    links: [
-        {
-            source: "3",
-            target: "2",
-            lag: 1,
-            type: ACTIVITY_DEPENDENCY_TYPE.FS,
-        },
-    ],
-    root_id: "1",
-};
-
-process_gantt_task_data(tree);
+// process_gantt_task_data(tree);
