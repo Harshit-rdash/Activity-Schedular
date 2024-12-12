@@ -1,11 +1,8 @@
 import { Schedule } from "./schedule";
 import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
 import {
-    get_schedule_from_gantt_task_data,
-    get_gantt_task_data_from_schedule,
     ITaskData,
-    get_schedule_from_schedule_data,
-    get_schedule_data_from_schedule,
+    Parser,
     IScheduleData,
     IActivityDependencyData,
     IActivityData,
@@ -19,63 +16,68 @@ export {
     IScheduleData,
 };
 
-export function process_gantt_task_data(tree: ITaskData): ITaskData {
-    console.log("Tree Received", tree);
-    let schedule: Schedule = get_schedule_from_gantt_task_data(tree);
-    console.log("Schedule Created, Processing started");
-    schedule.process();
-    console.log(
-        "Schedule Planned Start and End Dates",
-        schedule.activity_map.get(schedule.root_id)?.planned_start_date,
-        schedule.activity_map.get(schedule.root_id)?.planned_end_date
-    );
-    console.log(
-        "Schedule Projected Start and End Dates",
-        schedule.activity_map.get("1")?.get_projected_start_date(),
-        schedule.activity_map.get("1")?.get_projected_end_date()
-    );
-    console.log(
-        "Schedule Actual Start and End Dates",
-        schedule.activity_map.get("1")?.actual_start_date,
-        schedule.activity_map.get("1")?.actual_end_date
-    );
-    console.log(
-        "Schedule Completion and status",
-        schedule.activity_map.get("1")?.completion_percentage,
-        schedule.activity_map.get("1")?.get_status()
-    );
-    let result_tree = get_gantt_task_data_from_schedule(schedule);
-    console.log("Result Tree", result_tree);
-    return result_tree;
+export class ProjectScheduleProcessor {
+    public static process_project_schedule_data(
+        schedule_data: IScheduleData
+    ): IScheduleData {
+        let schedule = Parser.get_schedule_from_schedule_data(schedule_data);
+        schedule.process();
+        console.log(
+            "Schedule Planned Start and End Dates",
+            schedule.activity_map.get(schedule.root_id)?.planned_start_date,
+            schedule.activity_map.get(schedule.root_id)?.planned_end_date
+        );
+        console.log(
+            "Schedule Projected Start and End Dates",
+            schedule.activity_map.get("1")?.get_projected_start_date(),
+            schedule.activity_map.get("1")?.get_projected_end_date()
+        );
+        console.log(
+            "Schedule Actual Start and End Dates",
+            schedule.activity_map.get("1")?.actual_start_date,
+            schedule.activity_map.get("1")?.actual_end_date
+        );
+        console.log(
+            "Schedule Completion and status",
+            schedule.activity_map.get("1")?.completion_percentage,
+            schedule.activity_map.get("1")?.get_status()
+        );
+        let final_schedule_data =
+            Parser.get_schedule_data_from_schedule(schedule);
+        return final_schedule_data;
+    }
 }
 
-export function process_project_schedule_data(
-    schedule_data: IScheduleData
-): IScheduleData {
-    let schedule = get_schedule_from_schedule_data(schedule_data);
-    schedule.process();
-    console.log(
-        "Schedule Planned Start and End Dates",
-        schedule.activity_map.get(schedule.root_id)?.planned_start_date,
-        schedule.activity_map.get(schedule.root_id)?.planned_end_date
-    );
-    console.log(
-        "Schedule Projected Start and End Dates",
-        schedule.activity_map.get("1")?.get_projected_start_date(),
-        schedule.activity_map.get("1")?.get_projected_end_date()
-    );
-    console.log(
-        "Schedule Actual Start and End Dates",
-        schedule.activity_map.get("1")?.actual_start_date,
-        schedule.activity_map.get("1")?.actual_end_date
-    );
-    console.log(
-        "Schedule Completion and status",
-        schedule.activity_map.get("1")?.completion_percentage,
-        schedule.activity_map.get("1")?.get_status()
-    );
-    let final_schedule_data = get_schedule_data_from_schedule(schedule);
-    return final_schedule_data;
+export class GanttTaskDataProcessor {
+    public static process_gantt_task_data(tree: ITaskData): ITaskData {
+        console.log("Tree Received", tree);
+        let schedule: Schedule = Parser.get_schedule_from_gantt_task_data(tree);
+        console.log("Schedule Created, Processing started");
+        schedule.process();
+        console.log(
+            "Schedule Planned Start and End Dates",
+            schedule.activity_map.get(schedule.root_id)?.planned_start_date,
+            schedule.activity_map.get(schedule.root_id)?.planned_end_date
+        );
+        console.log(
+            "Schedule Projected Start and End Dates",
+            schedule.activity_map.get("1")?.get_projected_start_date(),
+            schedule.activity_map.get("1")?.get_projected_end_date()
+        );
+        console.log(
+            "Schedule Actual Start and End Dates",
+            schedule.activity_map.get("1")?.actual_start_date,
+            schedule.activity_map.get("1")?.actual_end_date
+        );
+        console.log(
+            "Schedule Completion and status",
+            schedule.activity_map.get("1")?.completion_percentage,
+            schedule.activity_map.get("1")?.get_status()
+        );
+        let result_tree = Parser.get_gantt_task_data_from_schedule(schedule);
+        console.log("Result Tree", result_tree);
+        return result_tree;
+    }
 }
 
 // let tree: ITaskData = {
@@ -116,4 +118,4 @@ export function process_project_schedule_data(
 //     root_id: "1",
 // };
 
-// process_gantt_task_data(tree);
+// GanttTaskDataProcessor.process_gantt_task_data(tree);
