@@ -80,42 +80,80 @@ export class GanttTaskDataProcessor {
     }
 }
 
-// let tree: ITaskData = {
-//     data: [
-//         {
-//             id: "1",
-//             // start_date: "2024-12-01",
-//             // end_date: "2024-12-05",
-//             duration: 0,
-//             progress: 0,
-//         },
-//         {
-//             id: "2",
-//             start_date: "2024-12-01",
-//             end_date: "2024-12-05",
-//             // actual_start_date: "2024-12-01",
-//             parent: "1",
-//             // progress: 50,
-//         },
-//         {
-//             id: "3",
-//             start_date: "2024-12-01",
-//             end_date: "2024-12-05",
-//             actual_start_date: "2024-12-01",
-//             duration: 5,
-//             parent: "1",
-//             progress: 50,
-//         },
-//     ],
-//     links: [
-//         {
-//             source: "3",
-//             target: "2",
-//             lag: 1,
-//             type: ACTIVITY_DEPENDENCY_TYPE.FS,
-//         },
-//     ],
-//     root_id: "1",
-// };
+let tree: ITaskData = {
+    data: [
+        {
+            id: "1",
+            // start_date: "2024-12-01",
+            // end_date: "2024-12-05",
+            duration: 0,
+            progress: 0,
+        },
+        {
+            id: "2",
+            start_date: "2024-12-01",
+            end_date: "2024-12-05",
+            actual_start_date: "2024-12-01",
+            parent: "1",
+            progress: 50,
+        },
+        {
+            id: "3",
+            start_date: "2024-12-01",
+            end_date: "2024-12-05",
+            actual_start_date: "2024-12-01",
+            duration: 5,
+            parent: "1",
+            progress: 50,
+        },
+    ],
+    links: [
+        {
+            source: "3",
+            target: "2",
+            lag: 1,
+            type: ACTIVITY_DEPENDENCY_TYPE.FS,
+        },
+    ],
+    root_id: "1",
+};
 
 // GanttTaskDataProcessor.process_gantt_task_data(tree);
+
+const project_schedule = {
+    uuid: "1",
+    activities: [
+        {
+            uuid: "1",
+            dependencies: [],
+        },
+        {
+            uuid: "2",
+            parent_uuid: "1",
+            planned_start_date: "2024-12-01",
+            planned_end_date: "2024-12-05",
+            completion_percentage: 50,
+            actual_start_date: "2024-12-01",
+            // actual_end_date:,
+            dependencies: [
+                {
+                    dependency_uuid: "3",
+                    lag: 1,
+                    type: ACTIVITY_DEPENDENCY_TYPE.FS,
+                },
+            ],
+        },
+        {
+            uuid: "3",
+            parent_uuid: "1",
+            planned_start_date: "2024-12-01",
+            planned_end_date: "2024-12-05",
+            completion_percentage: 50,
+            actual_start_date: "2024-12-01",
+            // actual_end_date:,
+            dependencies: [],
+        },
+    ],
+};
+
+ProjectScheduleProcessor.process_project_schedule_data(project_schedule);
