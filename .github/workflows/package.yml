@@ -23,12 +23,6 @@ jobs:
       - name: Install and Build
         run: npm ci && npm run build
 
-      - name: Get Git hash
-        id: get-git-hash
-        run: |
-          echo "NEW_VERSION=1.0.0-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "NEW_VERSION=1.0.0-$(git rev-parse --short HEAD)"
-
       - name: Set Version
         id: set-version
         run: |
@@ -37,9 +31,8 @@ jobs:
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
             SHORT_HASH=$(git rev-parse --short HEAD)
-            echo "NEW_VERSION=${BRANCH_NAME}-${SHORT_HASH}" >> $GITHUB_ENV
+            echo "NEW_VERSION=1.0.0-${BRANCH_NAME}-${SHORT_HASH}" >> $GITHUB_ENV
           fi
-          echo "New version: $NEW_VERSION"
 
       - run: npm version ${{ env.NEW_VERSION }} --no-git-tag-version && npm publish
         env:
