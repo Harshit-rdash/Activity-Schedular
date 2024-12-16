@@ -129,6 +129,10 @@ export class Schedule {
 
     public process() {
         let visited_set = new Set<string>();
+        if (this.activity_map.size == 1) {
+            console.log("Only root activity found, No processing needed");
+            return;
+        }
         this._process_activity(this.root_id, visited_set);
         console.log("Processing done");
     }
