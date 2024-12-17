@@ -1,5 +1,5 @@
 import { Schedule } from "./schedule";
-import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
+import { ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_STATUS } from "./enums";
 import {
     ITaskData,
     Parser,
@@ -14,6 +14,7 @@ export {
     IActivityDependencyData,
     IActivityData,
     IScheduleData,
+    ACTIVITY_STATUS,
 };
 
 export class ProjectScheduleProcessor {
@@ -84,24 +85,24 @@ let tree: ITaskData = {
     data: [
         {
             id: "1",
-            // start_date: "2024-12-01",
-            // end_date: "2024-12-05",
+            // start_date: new Date("2024-12-01"),
+            // end_date: new Date("2024-12-05"),
             duration: 0,
             progress: 0,
         },
         {
             id: "2",
-            start_date: "2024-12-01",
-            end_date: "2024-12-05",
-            actual_start_date: "2024-12-01",
+            start_date: new Date("2024-12-01"),
+            end_date: new Date("2024-12-05"),
+            actual_start_date: new Date("2024-12-01"),
             parent: "1",
             progress: 50,
         },
         {
             id: "3",
-            start_date: "2024-12-01",
-            end_date: "2024-12-05",
-            actual_start_date: "2024-12-01",
+            start_date: new Date("2024-12-01"),
+            end_date: new Date("2024-12-05"),
+            actual_start_date: new Date("2024-12-01"),
             duration: 5,
             parent: "1",
             progress: 50,
@@ -118,7 +119,7 @@ let tree: ITaskData = {
     root_id: "1",
 };
 
-// GanttTaskDataProcessor.process_gantt_task_data(tree);
+GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 const project_schedule = {
     uuid: "1",
@@ -156,4 +157,4 @@ const project_schedule = {
     ],
 };
 
-ProjectScheduleProcessor.process_project_schedule_data(project_schedule);
+// ProjectScheduleProcessor.process_project_schedule_data(project_schedule);
