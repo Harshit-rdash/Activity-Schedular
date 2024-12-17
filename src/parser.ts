@@ -5,15 +5,15 @@ import { format } from "date-fns";
 
 export interface IGanttTask {
     id: string;
-    start_date?: string;
-    end_date?: string;
+    start_date?: Date;
+    end_date?: Date;
     duration?: number;
     progress?: number;
     parent?: string;
-    actual_start_date?: string;
-    actual_end_date?: string;
-    projected_start_date?: string;
-    projected_end_date?: string;
+    actual_start_date?: Date;
+    actual_end_date?: Date;
+    projected_start_date?: Date;
+    projected_end_date?: Date;
     status?: string;
 }
 
@@ -62,14 +62,10 @@ export class Parser {
         for (let task of tree.data) {
             let activity = new Activity(
                 task.id,
-                task.start_date ? new Date(task.start_date) : undefined,
-                task.end_date ? new Date(task.end_date) : undefined,
-                task.actual_start_date
-                    ? new Date(task.actual_start_date)
-                    : undefined,
-                task.actual_end_date
-                    ? new Date(task.actual_end_date)
-                    : undefined,
+                task.start_date ? task.start_date : undefined,
+                task.end_date ? task.end_date : undefined,
+                task.actual_start_date ? task.actual_start_date : undefined,
+                task.actual_end_date ? task.actual_end_date : undefined,
                 [],
                 [],
                 task.progress ? task.progress : 0,
@@ -116,28 +112,17 @@ export class Parser {
             let actual_end_date = activity.actual_end_date;
             data.push({
                 id: activity.id,
-                start_date: format(
-                    activity.get_planned_start_date(),
-                    "yyyy-MM-dd"
-                ),
-                end_date: format(activity.get_planned_end_date(), "yyyy-MM-dd"),
+                start_date: activity.get_planned_start_date(),
+                end_date: activity.get_planned_end_date(),
                 actual_start_date: actual_start_date
-                    ? format(actual_start_date, "yyyy-MM-dd")
+                    ? actual_start_date
                     : undefined,
-                actual_end_date: actual_end_date
-                    ? format(actual_end_date, "yyyy-MM-dd")
-                    : undefined,
+                actual_end_date: actual_end_date ? actual_end_date : undefined,
                 duration: activity.get_duration(),
                 progress: activity.completion_percentage,
                 parent: activity.parent_id,
-                projected_start_date: format(
-                    activity.get_projected_start_date(),
-                    "yyyy-MM-dd"
-                ),
-                projected_end_date: format(
-                    activity.get_projected_end_date(),
-                    "yyyy-MM-dd"
-                ),
+                projected_start_date: activity.get_projected_start_date(),
+                projected_end_date: activity.get_projected_end_date(),
                 status: activity.get_status(),
             });
             for (let dependency of activity.dependencies) {
