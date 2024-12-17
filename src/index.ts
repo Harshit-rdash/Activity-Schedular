@@ -23,6 +23,10 @@ export class ProjectScheduleProcessor {
     public static process_project_schedule_data(
         schedule_data: IScheduleData
     ): IScheduleData {
+        if (schedule_data.activities.length <= 1) {
+            console.log("No sufficient data to process");
+            return schedule_data;
+        }
         const parser = new ScheduleDataParser();
         let schedule = parser.get_schedule_from_schedule_data(schedule_data);
         schedule.process();
@@ -55,6 +59,10 @@ export class ProjectScheduleProcessor {
 export class GanttTaskDataProcessor {
     public static process_gantt_task_data(tree: ITaskData): ITaskData {
         console.log("Tree Received", tree);
+        if (tree.data.length <= 1) {
+            console.log("No sufficient data to process");
+            return tree;
+        }
         const parser = new GanttDataParser();
         let schedule: Schedule = parser.get_schedule_from_gantt_task_data(tree);
         console.log("Schedule Created, Processing started");
@@ -95,31 +103,31 @@ let tree: ITaskData = {
             progress: 0,
             extra_data: "Some extra data",
         } as IGanttTask,
-        {
-            id: "2",
-            start_date: new Date("2024-12-01"),
-            end_date: new Date("2024-12-05"),
-            actual_start_date: new Date("2024-12-01"),
-            parent: "1",
-            progress: 50,
-        },
-        {
-            id: "3",
-            start_date: new Date("2024-12-01"),
-            end_date: new Date("2024-12-05"),
-            actual_start_date: new Date("2024-12-01"),
-            duration: 5,
-            parent: "1",
-            progress: 50,
-        },
+        // {
+        //     id: "2",
+        //     start_date: new Date("2024-12-01"),
+        //     end_date: new Date("2024-12-05"),
+        //     actual_start_date: new Date("2024-12-01"),
+        //     parent: "1",
+        //     progress: 50,
+        // },
+        // {
+        //     id: "3",
+        //     start_date: new Date("2024-12-01"),
+        //     end_date: new Date("2024-12-05"),
+        //     actual_start_date: new Date("2024-12-01"),
+        //     duration: 5,
+        //     parent: "1",
+        //     progress: 50,
+        // },
     ],
     links: [
-        {
-            source: "3",
-            target: "2",
-            lag: 1,
-            type: ACTIVITY_DEPENDENCY_TYPE.FS,
-        },
+        // {
+        //     source: "3",
+        //     target: "2",
+        //     lag: 1,
+        //     type: ACTIVITY_DEPENDENCY_TYPE.FS,
+        // },
     ],
     root_id: "1",
 };
