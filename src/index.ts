@@ -119,7 +119,7 @@ let tree: ITaskData = {
     root_id: "1",
 };
 
-GanttTaskDataProcessor.process_gantt_task_data(tree);
+// GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 const project_schedule = {
     uuid: "1",
