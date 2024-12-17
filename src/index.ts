@@ -2,10 +2,12 @@ import { Schedule } from "./schedule";
 import { ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_STATUS } from "./enums";
 import {
     ITaskData,
-    Parser,
+    ScheduleDataParser,
     IScheduleData,
     IActivityDependencyData,
     IActivityData,
+    GanttDataParser,
+    IGanttTask,
 } from "./parser";
 
 export {
@@ -21,7 +23,8 @@ export class ProjectScheduleProcessor {
     public static process_project_schedule_data(
         schedule_data: IScheduleData
     ): IScheduleData {
-        let schedule = Parser.get_schedule_from_schedule_data(schedule_data);
+        const parser = new ScheduleDataParser();
+        let schedule = parser.get_schedule_from_schedule_data(schedule_data);
         schedule.process();
         console.log(
             "Schedule Planned Start and End Dates",
@@ -44,7 +47,7 @@ export class ProjectScheduleProcessor {
             schedule.activity_map.get("1")?.get_status()
         );
         let final_schedule_data =
-            Parser.get_schedule_data_from_schedule(schedule);
+            parser.get_schedule_data_from_schedule(schedule);
         return final_schedule_data;
     }
 }
@@ -52,7 +55,8 @@ export class ProjectScheduleProcessor {
 export class GanttTaskDataProcessor {
     public static process_gantt_task_data(tree: ITaskData): ITaskData {
         console.log("Tree Received", tree);
-        let schedule: Schedule = Parser.get_schedule_from_gantt_task_data(tree);
+        const parser = new GanttDataParser();
+        let schedule: Schedule = parser.get_schedule_from_gantt_task_data(tree);
         console.log("Schedule Created, Processing started");
         schedule.process();
         console.log(
@@ -75,7 +79,7 @@ export class GanttTaskDataProcessor {
             schedule.activity_map.get("1")?.completion_percentage,
             schedule.activity_map.get("1")?.get_status()
         );
-        let result_tree = Parser.get_gantt_task_data_from_schedule(schedule);
+        let result_tree = parser.get_gantt_task_data_from_schedule(schedule);
         console.log("Result Tree", result_tree);
         return result_tree;
     }
@@ -89,7 +93,8 @@ let tree: ITaskData = {
             // end_date: new Date("2024-12-05"),
             duration: 0,
             progress: 0,
-        },
+            extra_data: "Some extra data",
+        } as IGanttTask,
         {
             id: "2",
             start_date: new Date("2024-12-01"),

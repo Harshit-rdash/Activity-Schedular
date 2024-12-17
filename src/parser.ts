@@ -56,8 +56,10 @@ export interface IScheduleData {
     activities: IActivityData[];
 }
 
-export class Parser {
-    public static get_schedule_from_gantt_task_data(tree: ITaskData): Schedule {
+export class GanttDataParser {
+    extra_data_map: Map<string, IGanttTask> = new Map();
+
+    public get_schedule_from_gantt_task_data(tree: ITaskData): Schedule {
         let activity_map: Map<string, Activity> = new Map<string, Activity>();
         for (let task of tree.data) {
             let activity = new Activity(
@@ -72,6 +74,7 @@ export class Parser {
                 task.parent
             );
             activity_map.set(task.id, activity);
+            this.extra_data_map.set(task.id, task);
         }
         for (let task of tree.data) {
             if (task.parent == undefined) {
@@ -101,9 +104,7 @@ export class Parser {
         let schedule = new Schedule(tree.root_id, activity_map);
         return schedule;
     }
-    public static get_gantt_task_data_from_schedule(
-        schedule: Schedule
-    ): ITaskData {
+    public get_gantt_task_data_from_schedule(schedule: Schedule): ITaskData {
         let data: IGanttTask[] = [];
         let links: IGanttTaskLink[] = [];
         let activity_map = schedule.get_activities();
@@ -111,6 +112,7 @@ export class Parser {
             let actual_start_date = activity.get_actual_start_date();
             let actual_end_date = activity.actual_end_date;
             data.push({
+                ...this.extra_data_map.get(activity.id),
                 id: activity.id,
                 start_date: activity.get_planned_start_date(),
                 end_date: activity.get_planned_end_date(),
@@ -140,7 +142,10 @@ export class Parser {
             root_id: schedule.root_id,
         };
     }
-    public static get_schedule_from_schedule_data(
+}
+export class ScheduleDataParser {
+    extra_data_map: Map<string, IActivityData> = new Map();
+    public get_schedule_from_schedule_data(
         schedule_data: IScheduleData
     ): Schedule {
         let activity_map: Map<string, Activity> = new Map<string, Activity>();
@@ -175,6 +180,7 @@ export class Parser {
                 activity_data.parent_uuid
             );
             activity_map.set(activity_data.uuid, activity);
+            this.extra_data_map.set(activity_data.uuid, activity_data);
         }
         for (let activity_data of schedule_data.activities) {
             if (activity_data.parent_uuid == undefined) {
@@ -192,9 +198,7 @@ export class Parser {
         return schedule;
     }
 
-    public static get_schedule_data_from_schedule(
-        schedule: Schedule
-    ): IScheduleData {
+    public get_schedule_data_from_schedule(schedule: Schedule): IScheduleData {
         let activities: IActivityData[] = [];
         let activity_map = schedule.get_activities();
         for (let activity of activity_map.values()) {
@@ -207,6 +211,7 @@ export class Parser {
                 });
             }
             activities.push({
+                ...this.extra_data_map.get(activity.id),
                 uuid: activity.id,
                 parent_uuid: activity.parent_id,
                 planned_start_date: activity.planned_start_date
