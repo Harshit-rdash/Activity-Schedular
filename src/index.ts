@@ -93,44 +93,75 @@ export class GanttTaskDataProcessor {
     }
 }
 
-let tree: ITaskData = {
+const tree = {
+    root_id: "0",
     data: [
         {
-            id: "1",
-            // start_date: new Date("2024-12-01"),
-            // end_date: new Date("2024-12-05"),
-            duration: 0,
+            id: "0",
+        },
+        {
+            id: "activity-1",
+            text: "Activity 1",
+            start_date: new Date("2021-09-01T00:00:00.000Z"),
+            end_date: new Date("2021-09-10T00:00:00.000Z"),
+            duration: 10,
             progress: 0,
-            extra_data: "Some extra data",
-        } as IGanttTask,
-        // {
-        //     id: "2",
-        //     start_date: new Date("2024-12-01"),
-        //     end_date: new Date("2024-12-05"),
-        //     actual_start_date: new Date("2024-12-01"),
-        //     parent: "1",
-        //     progress: 50,
-        // },
-        // {
-        //     id: "3",
-        //     start_date: new Date("2024-12-01"),
-        //     end_date: new Date("2024-12-05"),
-        //     actual_start_date: new Date("2024-12-01"),
-        //     duration: 5,
-        //     parent: "1",
-        //     progress: 50,
-        // },
+            assignees: [],
+            organizations: [],
+            projected_start_date: new Date("2021-09-01T00:00:00.000Z"),
+            projected_end_date: new Date("2021-09-10T00:00:00.000Z"),
+            slack: 0,
+            color: "#FF0000",
+            type: "task",
+            open: true,
+            wbs: "1",
+            readonly: false,
+            edit_field: null,
+            commentCount: 0,
+            attachments: [],
+        },
     ],
-    links: [
-        // {
-        //     source: "3",
-        //     target: "2",
-        //     lag: 1,
-        //     type: ACTIVITY_DEPENDENCY_TYPE.FS,
-        // },
-    ],
-    root_id: "1",
+    links: [],
 };
+
+// let tree: ITaskData = {
+//     data: [
+//         {
+//             id: "1",
+//             // start_date: new Date("2024-12-01"),
+//             // end_date: new Date("2024-12-05"),
+//             duration: 0,
+//             progress: 0,
+//             extra_data: "Some extra data",
+//         } as IGanttTask,
+//         // {
+//         //     id: "2",
+//         //     start_date: new Date("2024-12-01"),
+//         //     end_date: new Date("2024-12-05"),
+//         //     actual_start_date: new Date("2024-12-01"),
+//         //     parent: "1",
+//         //     progress: 50,
+//         // },
+//         // {
+//         //     id: "3",
+//         //     start_date: new Date("2024-12-01"),
+//         //     end_date: new Date("2024-12-05"),
+//         //     actual_start_date: new Date("2024-12-01"),
+//         //     duration: 5,
+//         //     parent: "1",
+//         //     progress: 50,
+//         // },
+//     ],
+//     links: [
+//         // {
+//         //     source: "3",
+//         //     target: "2",
+//         //     lag: 1,
+//         //     type: ACTIVITY_DEPENDENCY_TYPE.FS,
+//         // },
+//     ],
+//     root_id: "1",
+// };
 
 // GanttTaskDataProcessor.process_gantt_task_data(tree);
 

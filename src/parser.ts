@@ -71,21 +71,23 @@ export class GanttDataParser {
                 [],
                 [],
                 task.progress ? task.progress : 0,
-                task.parent
+                task.parent ?? task.id == tree.root_id
+                    ? undefined
+                    : tree.root_id
             );
             activity_map.set(task.id, activity);
             this.extra_data_map.set(task.id, task);
         }
         for (let task of tree.data) {
-            if (task.parent == undefined) {
+            const activity = activity_map.get(task.id);
+            if (!activity || !activity.parent_id) {
                 continue;
             }
-            let activity: Activity | undefined = activity_map.get(task.parent);
-            if (activity === undefined) {
+            let parent_activity = activity_map.get(activity?.parent_id);
+            if (parent_activity === undefined) {
                 throw new Error("Parent not found");
             }
-            activity.childs.push(task.id);
-            activity_map.set(task.parent, activity);
+            parent_activity.childs.push(task.id);
         }
         for (let link in tree.links) {
             let activity: Activity | undefined = activity_map.get(
