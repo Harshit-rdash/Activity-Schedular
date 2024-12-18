@@ -74,18 +74,22 @@ export class GanttTaskDataProcessor {
         );
         console.log(
             "Schedule Projected Start and End Dates",
-            schedule.activity_map.get("1")?.get_projected_start_date(),
-            schedule.activity_map.get("1")?.get_projected_end_date()
+            schedule.activity_map
+                .get(schedule.root_id)
+                ?.get_projected_start_date(),
+            schedule.activity_map
+                .get(schedule.root_id)
+                ?.get_projected_end_date()
         );
         console.log(
             "Schedule Actual Start and End Dates",
-            schedule.activity_map.get("1")?.actual_start_date,
-            schedule.activity_map.get("1")?.actual_end_date
+            schedule.activity_map.get(schedule.root_id)?.actual_start_date,
+            schedule.activity_map.get(schedule.root_id)?.actual_end_date
         );
         console.log(
             "Schedule Completion and status",
-            schedule.activity_map.get("1")?.completion_percentage,
-            schedule.activity_map.get("1")?.get_status()
+            schedule.activity_map.get(schedule.root_id)?.completion_percentage,
+            schedule.activity_map.get(schedule.root_id)?.get_status()
         );
         let result_tree = parser.get_gantt_task_data_from_schedule(schedule);
         console.log("Result Tree", result_tree);
@@ -102,10 +106,27 @@ const tree = {
         {
             id: "activity-1",
             text: "Activity 1",
+            progress: 0,
+            assignees: [],
+            organizations: [],
+            slack: 0,
+            color: "#FF0000",
+            type: "task",
+            open: true,
+            wbs: "1",
+            readonly: false,
+            edit_field: null,
+            commentCount: 0,
+            attachments: [],
+        },
+        {
+            id: "activity-2",
+            text: "Activity 2",
             start_date: new Date("2021-09-01T00:00:00.000Z"),
             end_date: new Date("2021-09-10T00:00:00.000Z"),
             duration: 10,
             progress: 0,
+            parent: "activity-1",
             assignees: [],
             organizations: [],
             projected_start_date: new Date("2021-09-01T00:00:00.000Z"),
@@ -163,7 +184,7 @@ const tree = {
 //     root_id: "1",
 // };
 
-// GanttTaskDataProcessor.process_gantt_task_data(tree);
+GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 const project_schedule = {
     uuid: "1",

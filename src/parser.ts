@@ -71,7 +71,9 @@ export class GanttDataParser {
                 [],
                 [],
                 task.progress ? task.progress : 0,
-                task.parent ?? task.id == tree.root_id
+                task.parent
+                    ? task.parent
+                    : task.id == tree.root_id
                     ? undefined
                     : tree.root_id
             );

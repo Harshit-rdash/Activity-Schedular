@@ -207,6 +207,7 @@ export class Activity {
         return false;
     }
 
+
     is_overdue(): boolean {
         if (this.planned_start_date === undefined) {
             throw new Activity.PlannedDateMissingError(
