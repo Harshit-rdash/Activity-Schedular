@@ -118,7 +118,7 @@ export class GanttDataParser {
             let actual_start_date = activity.get_actual_start_date();
             let actual_end_date = activity.actual_end_date;
             let parent_id = activity.get_parent_id();
-            const root = activity.get_root();
+            const root = schedule.get_root();
             if (parent_id == root && activity.id !== root) {
                 parent_id = undefined;
             }
