@@ -117,6 +117,11 @@ export class GanttDataParser {
         for (let activity of activity_map.values()) {
             let actual_start_date = activity.get_actual_start_date();
             let actual_end_date = activity.actual_end_date;
+            let parent_id = activity.get_parent_id();
+            const root = activity.get_root();
+            if (parent_id == root && activity.id !== root) {
+                parent_id = undefined;
+            }
             data.push({
                 ...this.extra_data_map.get(activity.id),
                 id: activity.id,
@@ -128,7 +133,7 @@ export class GanttDataParser {
                 actual_end_date: actual_end_date ? actual_end_date : undefined,
                 duration: activity.get_duration(),
                 progress: activity.completion_percentage / 100,
-                parent: activity.parent_id,
+                parent: parent_id,
                 projected_start_date: activity.get_projected_start_date(),
                 projected_end_date: activity.get_projected_end_date(),
                 status: activity.get_status(),
