@@ -220,7 +220,7 @@ export class Activity {
     }
 
     get_delayed_by(): number {
-        status = this.get_status();
+        const status = this.get_status();
         if (status !== ACTIVITY_STATUS.DELAYED) {
             return 0;
         }
