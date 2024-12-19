@@ -15,6 +15,7 @@ export interface IGanttTask {
     projected_start_date?: Date;
     projected_end_date?: Date;
     status?: string;
+    delay_by?: number;
 }
 
 export interface IGanttTaskLink {
@@ -49,6 +50,7 @@ export interface IActivityData {
     projected_start_date?: string;
     projected_end_date?: string;
     status?: string;
+    delay_by?: number;
 }
 
 export interface IScheduleData {
@@ -70,7 +72,7 @@ export class GanttDataParser {
                 task.actual_end_date ? task.actual_end_date : undefined,
                 [],
                 [],
-                task.progress ? task.progress : 0,
+                task.progress ? task.progress * 100 : 0,
                 task.parent
                     ? task.parent
                     : task.id == tree.root_id
@@ -125,11 +127,12 @@ export class GanttDataParser {
                     : undefined,
                 actual_end_date: actual_end_date ? actual_end_date : undefined,
                 duration: activity.get_duration(),
-                progress: activity.completion_percentage,
+                progress: activity.completion_percentage / 100,
                 parent: activity.parent_id,
                 projected_start_date: activity.get_projected_start_date(),
                 projected_end_date: activity.get_projected_end_date(),
                 status: activity.get_status(),
+                delay_by: activity.get_delayed_by(),
             });
             for (let dependency of activity.dependencies) {
                 links.push({
@@ -190,13 +193,14 @@ export class ScheduleDataParser {
             if (activity_data.parent_uuid == undefined) {
                 continue;
             }
-            let activity: Activity | undefined = activity_map.get(
+            let parent_activity: Activity | undefined = activity_map.get(
                 activity_data.parent_uuid
             );
-            if (activity === undefined) {
+            if (parent_activity === undefined) {
+                console.log(activity_data.parent_uuid);
                 throw new Error("Parent not found");
             }
-            activity.childs.push(activity_data.uuid);
+            parent_activity.childs.push(activity_data.uuid);
         }
         let schedule = new Schedule(schedule_data.uuid, activity_map);
         return schedule;
@@ -242,6 +246,7 @@ export class ScheduleDataParser {
                     "yyyy-MM-dd"
                 ),
                 status: activity.get_status(),
+                delay_by: activity.get_delayed_by(),
             });
         }
         return {

@@ -26,6 +26,7 @@ export class Schedule {
                 `Activity with id ${activity_id} not found`
             );
         }
+        console.log(`Activity id ${activity_id}`, activity);
         if (activity.childs.length > 0 && activity.dependencies.length > 0) {
             throw new Schedule.WrongScheduleError(
                 "Parent activity must not have dependencies"
@@ -91,7 +92,9 @@ export class Schedule {
                 if (!child_activity) {
                     throw new Schedule.ActivityNotFoundError(child_id);
                 }
-                planned_start_dates.push(child_activity.get_planned_start_date());
+                planned_start_dates.push(
+                    child_activity.get_planned_start_date()
+                );
                 planned_end_dates.push(child_activity.get_planned_end_date());
                 let actual_start_date = child_activity.get_actual_start_date();
                 if (actual_start_date) {
@@ -113,7 +116,9 @@ export class Schedule {
                 activity.set_planned_end_date(max(planned_end_dates));
             }
             if (actual_start_dates.length > 0) {
+                // console.log(`Actual start dates:   ${actual_start_dates}, ${min(actual_start_dates)}`)
                 activity.set_actual_start_date(min(actual_start_dates));
+                // console.log(`After setting: ${activity.get_actual_start_date()}`);
             }
             let completion_percentage = weighted_completion_sum
                 ? weighted_completion_sum / total_duration
@@ -123,8 +128,12 @@ export class Schedule {
                 activity.set_actual_end_date(max(actual_end_dates));
             }
         }
-
         visited_set.add(activity.id);
+        console.log(`Activity id ${activity_id} processed`, activity)
+    }
+
+    isValidDate(date: Date): boolean {
+        return !isNaN(date.getTime());
     }
 
     public process() {

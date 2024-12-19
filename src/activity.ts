@@ -83,7 +83,7 @@ export class Activity {
                 "Input actual end date is before actual start date, please set actual start date first"
             );
         }
-        this.actual_start_date = date;
+        this.actual_end_date = date;
     }
 
     get_duration(): number {
@@ -207,7 +207,6 @@ export class Activity {
         return false;
     }
 
-
     is_overdue(): boolean {
         if (this.planned_start_date === undefined) {
             throw new Activity.PlannedDateMissingError(
@@ -218,5 +217,16 @@ export class Activity {
             return true;
         }
         return false;
+    }
+
+    get_delayed_by(): number {
+        status = this.get_status();
+        if (status !== ACTIVITY_STATUS.DELAYED) {
+            return 0;
+        }
+        return differenceInDays(
+            this.get_projected_end_date(),
+            this.get_planned_end_date()
+        );
     }
 }
