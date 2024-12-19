@@ -91,10 +91,21 @@ export class Schedule {
                 if (!child_activity) {
                     throw new Schedule.ActivityNotFoundError(child_id);
                 }
-                planned_start_dates.push(child_activity.get_planned_start_date());
+                planned_start_dates.push(
+                    child_activity.get_planned_start_date()
+                );
                 planned_end_dates.push(child_activity.get_planned_end_date());
                 let actual_start_date = child_activity.get_actual_start_date();
                 if (actual_start_date) {
+                    if (!this.isValidDate(actual_start_date)) {
+                        console.log(
+                            `activity id: ${
+                                child_activity.id
+                            }, actual_start_date: ${this.isValidDate(
+                                actual_start_date
+                            )}`
+                        );
+                    }
                     actual_start_dates.push(actual_start_date);
                 }
                 let actual_end_date = child_activity.get_actual_end_date();
@@ -106,6 +117,16 @@ export class Schedule {
                     child_activity.completion_percentage * child_duration;
                 total_duration += child_duration;
             }
+            // if (
+            //     activity.id == "f550d9d0-adf5-40f2-a292-5b1732c16fab" ||
+            //     activity.id == "90a6f7cd-8089-4168-83f3-378940e09dd1" ||
+            //     activity.id == "a620e6f5-e5ce-4fd2-af3a-a1ce8a1644d3" ||
+            //     activity.id == "03961502-8370-4272-8920-7323cbd41f66" ||
+            //     activity.id == "f550d9d0-adf5-40f2-a292-5b1732c16fab" ||
+            //     activity.id == "ce6075ab-e049-478f-8243-724caf978602"
+            // ) {
+            //     console.log(`activity id: ${activity.id}, projected_date: ${activity.get_projected_start_date()}`);
+            // }
             if (planned_start_dates.length > 0) {
                 activity.set_planned_start_date(min(planned_start_dates));
             }
@@ -125,6 +146,10 @@ export class Schedule {
         }
 
         visited_set.add(activity.id);
+    }
+
+    isValidDate(date: Date): boolean {
+        return !isNaN(date.getTime());
     }
 
     public process() {

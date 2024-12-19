@@ -74,8 +74,14 @@ export class Activity {
         this.completion_percentage = completion_percentage;
     }
 
+    isValidDate(date: Date): boolean {
+        return !isNaN(date.getTime());
+    }
     set_actual_start_date(date: Date): void {
-        this.actual_start_date = date;
+        console.log(`${this.id} ${this.isValidDate(date)}`);
+        if (this.isValidDate(date)) {
+            this.actual_start_date = date;
+        }
     }
     set_actual_end_date(date: Date): void {
         if (this.actual_start_date && isBefore(date, this.actual_start_date)) {
@@ -206,7 +212,6 @@ export class Activity {
         }
         return false;
     }
-
 
     is_overdue(): boolean {
         if (this.planned_start_date === undefined) {

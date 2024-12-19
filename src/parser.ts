@@ -190,13 +190,14 @@ export class ScheduleDataParser {
             if (activity_data.parent_uuid == undefined) {
                 continue;
             }
-            let activity: Activity | undefined = activity_map.get(
+            let parent_activity: Activity | undefined = activity_map.get(
                 activity_data.parent_uuid
             );
-            if (activity === undefined) {
+            if (parent_activity === undefined) {
+                console.log(activity_data.parent_uuid);
                 throw new Error("Parent not found");
             }
-            activity.childs.push(activity_data.uuid);
+            parent_activity.childs.push(activity_data.uuid);
         }
         let schedule = new Schedule(schedule_data.uuid, activity_map);
         return schedule;
