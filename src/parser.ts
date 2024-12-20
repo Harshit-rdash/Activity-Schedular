@@ -34,7 +34,7 @@ export interface ITaskData {
 export interface IActivityDependencyData {
     dependency_uuid: string;
     lag: number;
-    type: ACTIVITY_DEPENDENCY_TYPE;
+    type: string;
 }
 
 export interface IActivityData {
@@ -157,6 +157,33 @@ export class GanttDataParser {
 }
 export class ScheduleDataParser {
     extra_data_map: Map<string, IActivityData> = new Map();
+
+    private get_type_enum(type: string): ACTIVITY_DEPENDENCY_TYPE {
+        if (type === "FS") {
+            return ACTIVITY_DEPENDENCY_TYPE.FS;
+        } else if (type === "FF") {
+            return ACTIVITY_DEPENDENCY_TYPE.FF;
+        } else if (type === "SF") {
+            return ACTIVITY_DEPENDENCY_TYPE.SF;
+        } else if (type === "SS") {
+            return ACTIVITY_DEPENDENCY_TYPE.SS;
+        }
+        throw new Error("Invalid dependency type");
+    }
+
+    private get_type_string(type: ACTIVITY_DEPENDENCY_TYPE): string {
+        if (type === ACTIVITY_DEPENDENCY_TYPE.FS) {
+            return "FS";
+        } else if (type === ACTIVITY_DEPENDENCY_TYPE.FF) {
+            return "FF";
+        } else if (type === ACTIVITY_DEPENDENCY_TYPE.SF) {
+            return "SF";
+        } else if (type === ACTIVITY_DEPENDENCY_TYPE.SS) {
+            return "SS";
+        }
+        throw new Error("Invalid dependency type");
+    }
+
     public get_schedule_from_schedule_data(
         schedule_data: IScheduleData
     ): Schedule {
@@ -167,7 +194,7 @@ export class ScheduleDataParser {
                 dependencies.push({
                     id: dependency.dependency_uuid,
                     lag: dependency.lag,
-                    type: dependency.type,
+                    type: this.get_type_enum(dependency.type),
                 });
             }
             let activity = new Activity(
@@ -220,7 +247,7 @@ export class ScheduleDataParser {
                 dependencies.push({
                     dependency_uuid: dependency.id,
                     lag: dependency.lag,
-                    type: dependency.type,
+                    type: this.get_type_string(dependency.type),
                 });
             }
             activities.push({

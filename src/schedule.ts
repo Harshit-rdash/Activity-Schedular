@@ -125,11 +125,16 @@ export class Schedule {
                 : 0;
             activity.set_completion_percentage(completion_percentage);
             if (completion_percentage === 100) {
+                if (actual_end_dates.length < 0) {
+                    throw new Schedule.WrongScheduleError(
+                        `Activity id ${activity.id} has 100% completion but actual end date is not found in its childs`
+                    );
+                }
                 activity.set_actual_end_date(max(actual_end_dates));
             }
         }
         visited_set.add(activity.id);
-        console.log(`Activity id ${activity_id} processed`, activity)
+        console.log(`Activity id ${activity_id} processed `, activity);
     }
 
     isValidDate(date: Date): boolean {

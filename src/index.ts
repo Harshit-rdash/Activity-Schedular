@@ -151,9 +151,14 @@ export class ProjectScheduleProcessor {
             schedule.activity_map.get(schedule.root_id)?.actual_end_date
         );
         console.log(
-            "Schedule Completion and status",
-            schedule.activity_map.get(schedule.root_id)?.completion_percentage,
-            schedule.activity_map.get(schedule.root_id)?.get_status()
+            `Schedule Completion ${
+                schedule.activity_map.get(schedule.root_id)
+                    ?.completion_percentage
+            }, status ${schedule.activity_map
+                .get(schedule.root_id)
+                ?.get_status()},
+            by ${schedule.activity_map.get(schedule.root_id)?.get_delayed_by()}
+            `
         );
         let final_schedule_data =
             parser.get_schedule_data_from_schedule(schedule);
@@ -179,7 +184,7 @@ const project_schedule = {
             planned_start_date: "2024-12-03",
             planned_end_date: "2024-12-07",
             actual_start_date: "2024-12-04",
-            completion_percentage: 20,
+            completion_percentage: 100,
             dependencies: [],
         },
         {
@@ -188,7 +193,7 @@ const project_schedule = {
             planned_start_date: "2024-12-01",
             planned_end_date: "2024-12-04",
             actual_start_date: "2024-12-01",
-            completion_percentage: 90,
+            completion_percentage: 10,
             dependencies: [],
         },
         {
@@ -197,17 +202,17 @@ const project_schedule = {
             planned_start_date: "2024-12-10",
             planned_end_date: "2024-12-12",
             actual_start_date: "2024-12-11",
-            completion_percentage: 10,
+            completion_percentage: 50,
             dependencies: [
                 {
                     dependency_uuid: "3",
                     lag: 0,
-                    type: ACTIVITY_DEPENDENCY_TYPE.FS,
+                    type: "FS",
                 },
                 {
                     dependency_uuid: "2",
                     lag: 3,
-                    type: ACTIVITY_DEPENDENCY_TYPE.FS,
+                    type: "FS",
                 },
             ],
         },
@@ -217,7 +222,7 @@ const project_schedule = {
             planned_start_date: "2024-12-03",
             planned_end_date: "2024-12-05",
             actual_start_date: "2024-12-04",
-            completion_percentage: 60,
+            completion_percentage: 100,
             dependencies: [],
         },
         {
@@ -226,7 +231,7 @@ const project_schedule = {
             planned_start_date: "2024-12-05",
             planned_end_date: "2024-12-07",
             actual_start_date: "2024-12-05",
-            completion_percentage: 20,
+            completion_percentage: 100,
             dependencies: [],
         },
         {
@@ -235,12 +240,12 @@ const project_schedule = {
             planned_start_date: "2024-12-04",
             planned_end_date: "2024-12-06",
             actual_start_date: "2024-12-04",
-            completion_percentage: 80,
+            completion_percentage: 100,
             dependencies: [
                 {
                     dependency_uuid: "5",
                     lag: 1,
-                    type: ACTIVITY_DEPENDENCY_TYPE.SS,
+                    type: "SS",
                 },
             ],
         },
@@ -250,7 +255,7 @@ const project_schedule = {
             planned_start_date: "2024-12-01",
             planned_end_date: "2024-12-02",
             actual_start_date: "2024-12-01",
-            completion_percentage: 50,
+            completion_percentage: 10,
             dependencies: [],
         },
         {
@@ -259,13 +264,13 @@ const project_schedule = {
             planned_start_date: "2024-12-03",
             planned_end_date: "2024-12-04",
             actual_start_date: "2024-12-03",
-            actual_end_date: "2024-12-05",
+            actual_end_date: "2024-12-04",
             completion_percentage: 100,
             dependencies: [
                 {
                     dependency_uuid: "8",
                     lag: 1,
-                    type: ACTIVITY_DEPENDENCY_TYPE.FS,
+                    type: "FS",
                 },
             ],
         },
@@ -275,12 +280,12 @@ const project_schedule = {
             planned_start_date: "2024-12-03",
             planned_end_date: "2024-12-05",
             actual_start_date: "2024-12-04",
-            completion_percentage: 10,
+            completion_percentage: 40,
             dependencies: [
                 {
                     dependency_uuid: "9",
                     lag: 2,
-                    type: ACTIVITY_DEPENDENCY_TYPE.SF,
+                    type: "SF",
                 },
             ],
         },
@@ -292,4 +297,4 @@ const project_schedule = {
     ],
 };
 
-// ProjectScheduleProcessor.process_project_schedule_data(project_schedule);
+ProjectScheduleProcessor.process_project_schedule_data(project_schedule);
