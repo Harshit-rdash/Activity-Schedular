@@ -297,4 +297,4 @@ const project_schedule = {
     ],
 };
 
-ProjectScheduleProcessor.process_project_schedule_data(project_schedule);
+// ProjectScheduleProcessor.process_project_schedule_data(project_schedule);

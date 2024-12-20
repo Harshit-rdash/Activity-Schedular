@@ -6,7 +6,6 @@ export class Schedule {
     static ScheduleBaseError = class extends Error {};
     static WrongScheduleError = class extends Schedule.ScheduleBaseError {};
     static ActivityNotFoundError = class extends Schedule.ScheduleBaseError {};
-    static WrongDateError = class extends Schedule.ScheduleBaseError {};
 
     activity_map: Map<string, Activity>;
     root_id: string;
