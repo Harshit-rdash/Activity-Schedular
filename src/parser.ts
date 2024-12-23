@@ -1,7 +1,7 @@
 import { Schedule } from "./schedule";
 import { IDependency, Activity } from "./activity";
 import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
-import { format } from "date-fns";
+import { format, add } from "date-fns";
 
 export interface IGanttTask {
     id: string;
@@ -67,7 +67,7 @@ export class GanttDataParser {
             let activity = new Activity(
                 task.id,
                 task.start_date ? task.start_date : undefined,
-                task.end_date ? task.end_date : undefined,
+                task.end_date ? add(task.end_date, { days: -1 }) : undefined,
                 task.actual_start_date ? task.actual_start_date : undefined,
                 task.actual_end_date ? task.actual_end_date : undefined,
                 [],
@@ -126,7 +126,7 @@ export class GanttDataParser {
                 ...this.extra_data_map.get(activity.id),
                 id: activity.id,
                 start_date: activity.get_planned_start_date(),
-                end_date: activity.get_planned_end_date(),
+                end_date: add(activity.get_planned_end_date(), { days: 1 }),
                 actual_start_date: actual_start_date
                     ? actual_start_date
                     : undefined,

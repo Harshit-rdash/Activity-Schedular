@@ -1,6 +1,6 @@
-import { Activity, IDependency } from "./activity";
+import { Activity } from "./activity";
 import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
-import { add, max, format, differenceInDays, min } from "date-fns";
+import { add, max, min } from "date-fns";
 
 export class Schedule {
     static ScheduleBaseError = class extends Error {};
