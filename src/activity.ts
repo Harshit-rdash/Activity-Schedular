@@ -113,15 +113,16 @@ export class Activity {
         if (this.actual_start_date !== undefined) {
             return this.actual_start_date;
         }
+        const today = this.get_today();
         if (
             isBefore(
-                startOfDay(add(Date(), { days: -1 })),
+                startOfDay(add(today, { days: -1 })),
                 this.planned_start_date
             )
         ) {
             return this.planned_start_date;
         }
-        return startOfDay(Date());
+        return startOfDay(today);
     }
 
     get_projected_end_date(): Date {
@@ -134,9 +135,16 @@ export class Activity {
             return this.actual_end_date;
         }
         let duration = this.get_remaining_duration();
-        return add(Date(), {
+
+        return add(this.get_today(), {
             days: duration ? duration - 1 : 0,
         });
+    }
+
+    get_today(): Date {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today;
     }
 
     get_status(): ACTIVITY_STATUS {
