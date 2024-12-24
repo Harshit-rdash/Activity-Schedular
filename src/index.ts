@@ -64,14 +64,6 @@ const tree = {
     root_id: "0",
     data: [
         {
-            id: "0",
-            actual_id: "",
-            text: "",
-            assignees: [],
-            organizations: [],
-            attachments: [],
-        },
-        {
             actual_id: "1",
             id: "activity-1",
             text: "Activity 1",
@@ -79,8 +71,10 @@ const tree = {
             progress: 0,
             assignees: [],
             organizations: [],
-            projected_start_date: "2021-09-01T00:00:00.000Z",
-            projected_end_date: "2021-09-10T00:00:00.000Z",
+            // projected_start_date: "2021-09-01T00:00:00.000Z",
+            // projected_end_date: "2021-09-10T00:00:00.000Z",
+            planned_start_date: "2021-09-01",
+            planned_end_date: "2021-09-10",
             slack: 0,
             color: "#FF0000",
             type: "project",
@@ -174,8 +168,8 @@ const project_schedule = {
             parent_uuid: "0",
             planned_start_date: "2024-12-01",
             planned_end_date: "2024-12-12",
-            actual_start_date: "2024-12-01",
-            completion_percentage: 80,
+            // actual_start_date: "2024-12-01",
+            completion_percentage: 0,
             dependencies: [],
         },
         {

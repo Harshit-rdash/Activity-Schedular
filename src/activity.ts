@@ -150,10 +150,10 @@ export class Activity {
     get_status(): ACTIVITY_STATUS {
         if (this.is_on_time()) {
             return ACTIVITY_STATUS.ON_TIME;
-        } else if (this.is_delayed()) {
-            return ACTIVITY_STATUS.DELAYED;
         } else if (this.is_overdue()) {
             return ACTIVITY_STATUS.OVERDUE;
+        } else if (this.is_delayed()) {
+            return ACTIVITY_STATUS.DELAYED;
         }
         throw new Activity.StatusConditionNotMatchedError();
     }
@@ -228,10 +228,6 @@ export class Activity {
     }
 
     get_delayed_by(): number {
-        const status = this.get_status();
-        if (status !== ACTIVITY_STATUS.DELAYED) {
-            return 0;
-        }
         return differenceInDays(
             this.get_projected_end_date(),
             this.get_planned_end_date()
