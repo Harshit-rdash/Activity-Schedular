@@ -137,7 +137,7 @@ export class Activity {
         let duration = this.get_remaining_duration();
 
         return add(this.get_today(), {
-            days: duration ? duration - 1 : 0,
+            days: duration ? duration  : 0,
         });
     }
 
