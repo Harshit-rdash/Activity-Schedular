@@ -91,7 +91,6 @@ const tree = {
     links: [],
 };
 
-GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 export class ProjectScheduleProcessor {
     public static process_project_schedule_data(

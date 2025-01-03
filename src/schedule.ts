@@ -115,9 +115,9 @@ export class Schedule {
                 activity.set_planned_end_date(max(planned_end_dates));
             }
             if (actual_start_dates.length > 0) {
-                // console.log(`Actual start dates:   ${actual_start_dates}, ${min(actual_start_dates)}`)
                 activity.set_actual_start_date(min(actual_start_dates));
-                // console.log(`After setting: ${activity.get_actual_start_date()}`);
+            } else {
+                activity.set_actual_start_date(undefined);
             }
             let completion_percentage = weighted_completion_sum
                 ? weighted_completion_sum / total_duration

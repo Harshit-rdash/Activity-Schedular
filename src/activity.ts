@@ -53,11 +53,9 @@ export class Activity {
 
     private _get_duration(): number {
         if (this.planned_start_date && this.planned_end_date)
-            return (
-                differenceInDays(
-                    this.planned_end_date,
-                    this.planned_start_date
-                ) 
+            return differenceInDays(
+                this.planned_end_date,
+                this.planned_start_date
             );
         throw new Activity.PlannedDateMissingError(
             `Planned start or end date is missing activity_id: ${this.id}`
@@ -87,10 +85,14 @@ export class Activity {
         this.completion_percentage = completion_percentage;
     }
 
-    set_actual_start_date(date: Date): void {
+    set_actual_start_date(date?: Date): void {
         this.actual_start_date = date;
     }
-    set_actual_end_date(date: Date): void {
+    set_actual_end_date(date?: Date): void {
+        if (date == undefined) {
+            this.actual_end_date = date;
+            return;
+        }
         if (this.actual_start_date && isBefore(date, this.actual_start_date)) {
             throw new Activity.WrongInputEndDateError(
                 "Input actual end date is before actual start date, please set actual start date first"
@@ -100,7 +102,7 @@ export class Activity {
     }
 
     get_duration(): number {
-        return this._get_duration()+1
+        return this._get_duration() + 1;
     }
 
     get_remaining_duration(): number {
@@ -141,7 +143,7 @@ export class Activity {
         let duration = this.get_remaining_duration();
         if (this.actual_start_date == undefined) {
             return add(this.get_projected_start_date(), {
-                days: duration ? duration  : 0,
+                days: duration ? duration : 0,
             });
         }
 
