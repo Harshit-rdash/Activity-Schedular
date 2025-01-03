@@ -71,10 +71,8 @@ const tree = {
             progress: 0,
             assignees: [],
             organizations: [],
-            // projected_start_date: "2021-09-01T00:00:00.000Z",
-            // projected_end_date: "2021-09-10T00:00:00.000Z",
-            planned_start_date: "2021-09-01",
-            planned_end_date: "2021-09-10",
+            start_date: new Date("2025-01-05"),
+            end_date: new Date("2025-01-10"),
             slack: 0,
             color: "#FF0000",
             type: "project",
@@ -86,33 +84,14 @@ const tree = {
             attachments: [],
         },
         {
-            actual_id: "2",
-            id: "activity-2",
-            text: "Activity 2",
-            start_date: "2021-09-01T00:00:00.000Z",
-            end_date: "2021-09-10T00:00:00.000Z",
-            duration: 10,
-            progress: 0,
-            parent: "activity-1",
-            assignees: [],
-            organizations: [],
-            projected_start_date: "2021-09-01T00:00:00.000Z",
-            projected_end_date: "2021-09-10T00:00:00.000Z",
-            slack: 0,
-            color: "#FF0000",
-            type: "task",
-            open: true,
-            wbs: "1",
-            readonly: false,
-            edit_field: null,
-            commentCount: 0,
-            attachments: [],
+            actual_id: "1",
+            id: "0",
         },
     ],
     links: [],
 };
 
-// GanttTaskDataProcessor.process_gantt_task_data(tree);
+GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 export class ProjectScheduleProcessor {
     public static process_project_schedule_data(

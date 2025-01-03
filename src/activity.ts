@@ -51,6 +51,19 @@ export class Activity {
         this.parent_id = parent_id;
     }
 
+    private _get_duration(): number {
+        if (this.planned_start_date && this.planned_end_date)
+            return (
+                differenceInDays(
+                    this.planned_end_date,
+                    this.planned_start_date
+                ) 
+            );
+        throw new Activity.PlannedDateMissingError(
+            `Planned start or end date is missing activity_id: ${this.id}`
+        );
+    }
+
     set_planned_start_date(date: Date): void {
         this.planned_start_date = date;
         if (this.planned_end_date && isBefore(this.planned_end_date, date)) {
@@ -87,20 +100,11 @@ export class Activity {
     }
 
     get_duration(): number {
-        if (this.planned_start_date && this.planned_end_date)
-            return (
-                differenceInDays(
-                    this.planned_end_date,
-                    this.planned_start_date
-                ) + 1
-            );
-        throw new Activity.PlannedDateMissingError(
-            `Planned start or end date is missing activity_id: ${this.id}`
-        );
+        return this._get_duration()+1
     }
 
     get_remaining_duration(): number {
-        let duration = this.get_duration();
+        let duration = this._get_duration();
         return Math.floor(duration * (1 - this.completion_percentage / 100));
     }
 
@@ -135,9 +139,14 @@ export class Activity {
             return this.actual_end_date;
         }
         let duration = this.get_remaining_duration();
+        if (this.actual_start_date == undefined) {
+            return add(this.get_projected_start_date(), {
+                days: duration ? duration  : 0,
+            });
+        }
 
         return add(this.get_today(), {
-            days: duration ? duration  : 0,
+            days: duration ? duration : 0,
         });
     }
 
