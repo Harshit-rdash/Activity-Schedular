@@ -61,36 +61,43 @@ export class GanttTaskDataProcessor {
 }
 
 const tree = {
-    root_id: "0",
+    root_id: "19f556f8-a21d-4ecb-b598-ab1000b96411",
     data: [
         {
-            actual_id: "1",
-            id: "activity-1",
-            text: "Activity 1",
-            duration: 10,
+            id: "19f556f8-a21d-4ecb-b598-ab1000b96411",
+        },
+        {
+            actualId: "gDYZd4K6EQjR1lGm",
+            id: "5554bf60-ca70-11ef-a193-bfe1b39af6bc",
+            text: "A",
+            start_date: "2025-01-04T18:30:00.000Z",
+            end_date: "2025-01-10T18:30:00.000Z",
+            duration: 7,
             progress: 0,
             assignees: [],
             organizations: [],
-            start_date: new Date("2025-01-05"),
-            end_date: new Date("2025-01-10"),
+            projected_start_date: "2025-01-04T18:30:00.000Z",
+            projected_end_date: "2025-01-09T18:30:00.000Z",
             slack: 0,
-            color: "#FF0000",
-            type: "project",
+            color: "#9689B2",
+            type: "task",
             open: true,
             wbs: "1",
-            readonly: true,
-            edit_field: null,
+            editField: null,
             commentCount: 0,
+            prevSibling: null,
+            isCritical: true,
             attachments: [],
-        },
-        {
-            actual_id: "1",
-            id: "0",
+            selected: false,
+            delay_by: 0,
+            isParent: false,
+            dependencies: [],
         },
     ],
     links: [],
 };
 
+// GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 export class ProjectScheduleProcessor {
     public static process_project_schedule_data(
