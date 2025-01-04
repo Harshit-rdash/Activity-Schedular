@@ -239,6 +239,9 @@ export class Activity {
     }
 
     get_delayed_by(): number {
+        if (this.is_on_time()) {
+            return 0;
+        }
         return differenceInDays(
             this.get_projected_end_date(),
             this.get_planned_end_date()
