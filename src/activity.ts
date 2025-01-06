@@ -227,12 +227,17 @@ export class Activity {
     }
 
     is_overdue(): boolean {
-        if (this.planned_start_date === undefined) {
+        if (this.planned_end_date === undefined) {
             throw new Activity.PlannedDateMissingError(
                 `Planned start date is missing, activity_id: ${this.id}`
             );
         }
-        if (isAfter(this.get_projected_start_date(), this.planned_start_date)) {
+        if (
+            isAfter(
+                this.get_projected_start_date(),
+                this.get_planned_end_date()
+            )
+        ) {
             return true;
         }
         return false;
