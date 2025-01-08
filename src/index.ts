@@ -59,12 +59,11 @@ export class GanttTaskDataProcessor {
         return result_tree;
     }
 
-
-    public static detect_cycle(tree: ITaskData): bool {
+    public static detect_cycle(tree: ITaskData): boolean {
         console.log("Tree Received", tree);
         if (tree.data.length <= 1) {
             console.log("No sufficient data to process");
-            return tree;
+            return false;
         }
         const parser = new GanttDataParser();
         let schedule: Schedule = parser.get_schedule_from_gantt_task_data(tree);
@@ -191,8 +190,54 @@ const tree = {
         },
     ],
 };
-
 // GanttTaskDataProcessor.process_gantt_task_data(tree);
+
+const tree_have_cycle = {
+    root_id: "0",
+    data: [
+        {
+            id: "0",
+        },
+        {
+            id: "1",
+            parent: "0",
+        },
+        {
+            id: "2",
+            parent: "0",
+        },
+        {
+            id: "3",
+            parent: "1",
+        },
+        {
+            id: "4",
+            parent: "1",
+        },
+    ],
+    links: [
+        {
+            source: "3",
+            target: "4",
+            type: ACTIVITY_DEPENDENCY_TYPE.FS,
+            lag: 0,
+        },
+        {
+            source: "2",
+            target: "4",
+            type: ACTIVITY_DEPENDENCY_TYPE.FS,
+            lag: 0,
+        },
+        {
+            source: "1",
+            target: "2",
+            type: ACTIVITY_DEPENDENCY_TYPE.FS,
+            lag: 0,
+        },
+    ],
+};
+
+// GanttTaskDataProcessor.detect_cycle(tree_have_cycle);
 
 export class ProjectScheduleProcessor {
     public static process_project_schedule_data(

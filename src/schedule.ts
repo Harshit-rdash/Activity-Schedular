@@ -140,7 +140,7 @@ export class Schedule {
         activity_id: string,
         previous_activity_id: string,
         visited_set: Set<string>
-    ): bool {
+    ): boolean {
         let activity = this.activity_map.get(activity_id);
         if (activity == null) {
             throw new Schedule.ActivityNotFoundError(
@@ -149,7 +149,7 @@ export class Schedule {
         }
         visited_set.add(activity_id);
         if (activity.childs.length == 0) {
-            for (let dependency in activity.dependencies) {
+            for (let dependency of activity.dependencies) {
                 if (dependency.id == previous_activity_id) {
                     return true;
                 }
