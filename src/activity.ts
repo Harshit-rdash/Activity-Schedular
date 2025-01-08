@@ -246,10 +246,17 @@ export class Activity {
     get_delayed_by(): number {
         if (this.is_on_time()) {
             return 0;
+        } else if (this.is_delayed()) {
+            return differenceInDays(
+                this.get_projected_end_date(),
+                this.get_planned_end_date()
+            );
+        } else if (this.is_overdue()) {
+            return differenceInDays(
+                this.get_projected_start_date(),
+                this.get_planned_end_date()
+            );
         }
-        return differenceInDays(
-            this.get_projected_end_date(),
-            this.get_planned_end_date()
-        );
+        throw new Activity.StatusConditionNotMatchedError();
     }
 }
