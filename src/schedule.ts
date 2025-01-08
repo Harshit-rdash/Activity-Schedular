@@ -136,8 +136,57 @@ export class Schedule {
         console.log(`Activity id ${activity_id} processed `, activity);
     }
 
-    isValidDate(date: Date): boolean {
-        return !isNaN(date.getTime());
+    private _detect_cycle(
+        activity_id: string,
+        previous_activity_id: string,
+        visited_set: Set<string>
+    ): bool {
+        let activity = this.activity_map.get(activity_id);
+        if (activity == null) {
+            throw new Schedule.ActivityNotFoundError(
+                `Activity with id ${activity_id} not found`
+            );
+        }
+        visited_set.add(activity_id);
+        if (activity.childs.length == 0) {
+            for (let dependency in activity.dependencies) {
+                if (dependency.id == previous_activity_id) {
+                    return true;
+                }
+                if (
+                    visited_set.has(dependency.id) &&
+                    dependency.id != previous_activity_id
+                ) {
+                    return true;
+                }
+                let has_dependency_cycle = this._detect_cycle(
+                    dependency.id,
+                    activity_id,
+                    visited_set
+                );
+                if (has_dependency_cycle) {
+                    return true;
+                }
+            }
+        }
+        for (let child_id of activity.childs) {
+            if (child_id == previous_activity_id) {
+                return true;
+            }
+            if (visited_set.has(child_id) && child_id != previous_activity_id) {
+                return true;
+            }
+            let has_child_cycle = this._detect_cycle(
+                child_id,
+                activity_id,
+                visited_set
+            );
+            if (has_child_cycle) {
+                return true;
+            }
+        }
+        visited_set.delete(activity_id);
+        return false;
     }
 
     public process() {
@@ -148,6 +197,12 @@ export class Schedule {
         }
         this._process_activity(this.root_id, visited_set);
         console.log("Processing done");
+    }
+
+    public detect_cycle(): boolean {
+        let visited_set = new Set<string>();
+        let has_cycle = this._detect_cycle(this.root_id, "", visited_set);
+        return has_cycle;
     }
 
     public get_root(): string {

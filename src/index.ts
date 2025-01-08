@@ -58,6 +58,21 @@ export class GanttTaskDataProcessor {
         console.log("Result Tree", result_tree);
         return result_tree;
     }
+
+
+    public static detect_cycle(tree: ITaskData): bool {
+        console.log("Tree Received", tree);
+        if (tree.data.length <= 1) {
+            console.log("No sufficient data to process");
+            return tree;
+        }
+        const parser = new GanttDataParser();
+        let schedule: Schedule = parser.get_schedule_from_gantt_task_data(tree);
+        console.log("Schedule Created, Cycle detection started");
+        let has_cycle = schedule.detect_cycle();
+        console.log("Cycle Detected: ", has_cycle);
+        return has_cycle;
+    }
 }
 
 const tree = {
