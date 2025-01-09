@@ -46,7 +46,7 @@ export class Schedule {
                 if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FS) {
                     planned_start_dates.push(
                         add(dependency_activity.get_planned_end_date(), {
-                            days: dependency.lag,
+                            days: (dependency.lag + 1),
                         })
                     );
                 } else if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FF) {
