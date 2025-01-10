@@ -130,6 +130,8 @@ export class Schedule {
                     );
                 }
                 activity.set_actual_end_date(max(actual_end_dates));
+            } else {
+                activity.set_actual_end_date(undefined);
             }
         }
         visited_set.add(activity.id);
