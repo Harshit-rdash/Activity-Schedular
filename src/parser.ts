@@ -186,6 +186,13 @@ export class ScheduleDataParser {
         throw new Error("Invalid dependency type");
     }
 
+    private getMidnightDate(dateString: string | undefined): Date | undefined {
+        if (!dateString) return undefined;
+        const date = new Date(dateString);
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
     public get_schedule_from_schedule_data(
         schedule_data: IScheduleData
     ): Schedule {
@@ -199,20 +206,24 @@ export class ScheduleDataParser {
                     type: this.get_type_enum(dependency.type),
                 });
             }
+            let planned_start_date = this.getMidnightDate(
+                activity_data.planned_start_date
+            );
+            let planned_end_date = this.getMidnightDate(
+                activity_data.planned_end_date
+            );
+            let actual_start_date = this.getMidnightDate(
+                activity_data.actual_start_date
+            );
+            let actual_end_date = this.getMidnightDate(
+                activity_data.actual_end_date
+            );
             let activity = new Activity(
                 activity_data.uuid,
-                activity_data.planned_start_date
-                    ? new Date(activity_data.planned_start_date)
-                    : undefined,
-                activity_data.planned_end_date
-                    ? new Date(activity_data.planned_end_date)
-                    : undefined,
-                activity_data.actual_start_date
-                    ? new Date(activity_data.actual_start_date)
-                    : undefined,
-                activity_data.actual_end_date
-                    ? new Date(activity_data.actual_end_date)
-                    : undefined,
+                planned_start_date,
+                planned_end_date,
+                actual_start_date,
+                actual_end_date,
                 [],
                 dependencies,
                 activity_data.completion_percentage
