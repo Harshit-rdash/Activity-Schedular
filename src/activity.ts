@@ -233,6 +233,7 @@ export class Activity {
             );
         }
         if (
+            this.actual_start_date == undefined &&
             isAfter(
                 this.get_projected_start_date(),
                 this.get_planned_end_date()
