@@ -64,24 +64,29 @@ export class Activity {
 
     set_planned_start_date(date: Date): void {
         // removed this logic because it is not required to calculate the projected start date
-        // this.planned_start_date = date;
-        // if (this.planned_end_date && isBefore(this.planned_end_date, date)) {
-        //     this.set_planned_end_date(date);
-        // }
-
+        if (this.planned_start_date != null ){
+            return;
+        }
+        this.planned_start_date = date;
+        if (this.planned_end_date && isBefore(this.planned_end_date, date)) {
+            this.set_planned_end_date(date);
+        }
     }
 
     set_planned_end_date(date: Date): void {
         // removed this logic because it is not required to calculate the projected end date
-        // if (
-        //     this.planned_start_date &&
-        //     isBefore(date, this.planned_start_date)
-        // ) {
-        //     throw new Activity.ActivityBaseError(
-        //         `Input end date is less then start date, please set start date first, end_date: ${this.planned_end_date}, input: ${date}`
-        //     );
-        // }
-        // this.planned_end_date = date;
+        if (this.planned_end_date != null ){
+            return;
+        }
+        if (
+            this.planned_start_date &&
+            isBefore(date, this.planned_start_date)
+        ) {
+            throw new Activity.ActivityBaseError(
+                `Input end date is less then start date, please set start date first, end_date: ${this.planned_end_date}, input: ${date}`
+            );
+        }
+        this.planned_end_date = date;
     }
 
     set_completion_percentage(completion_percentage: number): void {
