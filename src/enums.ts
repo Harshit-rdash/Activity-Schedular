@@ -10,3 +10,10 @@ export enum ACTIVITY_DEPENDENCY_TYPE {
     FS = "FS",
     FF = "FF",
 }
+
+
+export enum ACTIVITY_TYPE {
+    TASK = "task",
+    MILESTONE = "milestone",
+    PROJECT = "project",
+}

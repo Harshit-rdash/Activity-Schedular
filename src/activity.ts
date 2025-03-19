@@ -1,4 +1,4 @@
-import { ACTIVITY_STATUS, ACTIVITY_DEPENDENCY_TYPE } from "./enums";
+import { ACTIVITY_STATUS, ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_TYPE } from "./enums";
 import {
     add,
     differenceInDays,
@@ -20,6 +20,7 @@ export class Activity {
     static WrongInputEndDateError = class extends Activity.ActivityBaseError {};
 
     id: string;
+    type: ACTIVITY_TYPE;
     planned_start_date?: Date;
     planned_end_date?: Date;
     actual_start_date?: Date;
@@ -28,9 +29,11 @@ export class Activity {
     dependencies: Array<IDependency>;
     completion_percentage: number;
     parent_id?: string;
+    
 
     constructor(
         id: string,
+        type: ACTIVITY_TYPE,
         planned_start_date?: Date,
         planned_end_date?: Date,
         actual_start_date?: Date,
@@ -38,7 +41,7 @@ export class Activity {
         childs: Array<string> = [],
         dependencies: Array<IDependency> = [],
         completion_percentage: number = 0,
-        parent_id?: string
+        parent_id?: string,
     ) {
         this.id = id;
         this.planned_start_date = planned_start_date;
@@ -49,6 +52,7 @@ export class Activity {
         this.dependencies = dependencies;
         this.completion_percentage = completion_percentage;
         this.parent_id = parent_id;
+        this.type = type;
     }
 
     private _get_duration(): number {

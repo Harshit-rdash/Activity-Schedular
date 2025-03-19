@@ -1,6 +1,6 @@
 import { Schedule } from "./schedule";
 import { IDependency, Activity } from "./activity";
-import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
+import { ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_TYPE } from "./enums";
 import { format, add } from "date-fns";
 
 export interface IGanttTask {
@@ -16,6 +16,7 @@ export interface IGanttTask {
     projected_end_date?: Date;
     status?: string;
     delay_by?: number;
+    type?: ACTIVITY_TYPE;
 }
 
 export interface IGanttTaskLink {
@@ -51,6 +52,7 @@ export interface IActivityData {
     projected_end_date?: string;
     status?: string;
     delay_by?: number;
+    type?: ACTIVITY_TYPE;
 }
 
 export interface IScheduleData {
@@ -64,8 +66,18 @@ export class GanttDataParser {
     public get_schedule_from_gantt_task_data(tree: ITaskData): Schedule {
         let activity_map: Map<string, Activity> = new Map<string, Activity>();
         for (let task of tree.data) {
+            let parent_id = task.parent
+                ? task.parent
+                : task.id == tree.root_id
+                ? undefined
+                : tree.root_id;
             let activity = new Activity(
                 task.id,
+                task.type
+                    ? task.type
+                    : parent_id
+                    ? ACTIVITY_TYPE.PROJECT
+                    : ACTIVITY_TYPE.TASK,
                 task.start_date ? task.start_date : undefined,
                 task.end_date ? add(task.end_date, { days: -1 }) : undefined,
                 // task.end_date,
@@ -74,11 +86,7 @@ export class GanttDataParser {
                 [],
                 [],
                 task.progress ? task.progress * 100 : 0,
-                task.parent
-                    ? task.parent
-                    : task.id == tree.root_id
-                    ? undefined
-                    : tree.root_id
+                parent_id
             );
             activity_map.set(task.id, activity);
             this.extra_data_map.set(task.id, task);
