@@ -1,4 +1,8 @@
-import { ACTIVITY_STATUS, ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_TYPE } from "./enums";
+import {
+    ACTIVITY_STATUS,
+    ACTIVITY_DEPENDENCY_TYPE,
+    ACTIVITY_TYPE,
+} from "./enums";
 import {
     add,
     differenceInDays,
@@ -29,7 +33,6 @@ export class Activity {
     dependencies: Array<IDependency>;
     completion_percentage: number;
     parent_id?: string;
-    
 
     constructor(
         id: string,
@@ -41,7 +44,7 @@ export class Activity {
         childs: Array<string> = [],
         dependencies: Array<IDependency> = [],
         completion_percentage: number = 0,
-        parent_id?: string,
+        parent_id?: string
     ) {
         this.id = id;
         this.planned_start_date = planned_start_date;
@@ -68,7 +71,7 @@ export class Activity {
 
     set_planned_start_date(date: Date): void {
         // removed this logic because it is not required to calculate the projected start date
-        if (this.planned_start_date != null ){
+        if (this.planned_start_date != null) {
             return;
         }
         this.planned_start_date = date;
@@ -79,7 +82,7 @@ export class Activity {
 
     set_planned_end_date(date: Date): void {
         // removed this logic because it is not required to calculate the projected end date
-        if (this.planned_end_date != null ){
+        if (this.planned_end_date != null) {
             return;
         }
         if (
@@ -114,6 +117,9 @@ export class Activity {
     }
 
     get_duration(): number {
+        if (this.type !== ACTIVITY_TYPE.TASK) {
+            return 0;
+        }
         return this._get_duration() + 1;
     }
 

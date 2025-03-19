@@ -79,7 +79,11 @@ export class GanttDataParser {
                     ? ACTIVITY_TYPE.PROJECT
                     : ACTIVITY_TYPE.TASK,
                 task.start_date ? task.start_date : undefined,
-                task.end_date ? add(task.end_date, { days: -1 }) : undefined,
+                task.end_date
+                    ? add(task.end_date, {
+                          days: task.type == ACTIVITY_TYPE.TASK ? -1 : 0,
+                      })
+                    : undefined,
                 // task.end_date,
                 task.actual_start_date ? task.actual_start_date : undefined,
                 task.actual_end_date ? task.actual_end_date : undefined,
@@ -135,7 +139,9 @@ export class GanttDataParser {
                 ...this.extra_data_map.get(activity.id),
                 id: activity.id,
                 start_date: activity.get_planned_start_date(),
-                end_date: add(activity.get_planned_end_date(), { days: 1 }),
+                end_date: add(activity.get_planned_end_date(), {
+                    days: activity.type == ACTIVITY_TYPE.TASK ? 1 : 0,
+                }),
                 // end_date: activity.get_planned_end_date(),
                 actual_start_date: actual_start_date
                     ? actual_start_date
@@ -228,6 +234,11 @@ export class ScheduleDataParser {
             );
             let activity = new Activity(
                 activity_data.uuid,
+                activity_data.type
+                    ? activity_data.type
+                    : activity_data.parent_uuid
+                    ? ACTIVITY_TYPE.PROJECT
+                    : ACTIVITY_TYPE.TASK,
                 planned_start_date,
                 planned_end_date,
                 actual_start_date,

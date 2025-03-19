@@ -1,5 +1,9 @@
 import { Schedule } from "./schedule";
-import { ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_STATUS } from "./enums";
+import {
+    ACTIVITY_DEPENDENCY_TYPE,
+    ACTIVITY_STATUS,
+    ACTIVITY_TYPE,
+} from "./enums";
 import {
     ITaskData,
     ScheduleDataParser,
@@ -84,8 +88,8 @@ const tree = {
             id: "1",
             text: "A",
             start_date: new Date("2025-01-15T18:30:00.000Z"),
-            end_date: new Date("2025-01-16T18:30:00.000Z"),
-            duration: 1,
+            end_date: new Date("2025-01-15T18:30:00.000Z"),
+            duration: 0,
             progress: 0,
             assignees: [],
             organizations: [],
@@ -94,7 +98,7 @@ const tree = {
             slack: 0,
             color: "#9689B2",
             status: "ON_TIME",
-            type: "task",
+            type: ACTIVITY_TYPE.MILESTONE,
             open: false,
             wbs: "1",
             editField: undefined,
@@ -118,7 +122,7 @@ const tree = {
             slack: 0,
             color: "#9689B2",
             status: "ON_TIME",
-            type: "task",
+            type: ACTIVITY_TYPE.TASK,
             open: false,
             wbs: "2",
             editField: undefined,
@@ -143,7 +147,7 @@ const tree = {
             slack: 1,
             color: "#9689B2",
             status: "ON_TIME",
-            type: "task",
+            type: ACTIVITY_TYPE.TASK,
             open: false,
             wbs: "3",
             editField: undefined,
@@ -164,7 +168,7 @@ const tree = {
         },
     ],
 };
-// GanttTaskDataProcessor.process_gantt_task_data(tree);
+GanttTaskDataProcessor.process_gantt_task_data(tree);
 
 const tree_have_cycle = {
     root_id: "0",
@@ -2471,52 +2475,52 @@ function process_schedule(schedule: IScheduleData): IScheduleData {
     Function can be used to debug the schedule data by converting uuids to integers
     */
     let uuid_map = new Map<string, string>();
-    uuid_map.set(schedule.uuid, "0")
+    uuid_map.set(schedule.uuid, "0");
     schedule.uuid = "0";
     let count = 1;
-    schedule.activities.forEach(
-        (activity) => {
-            if (activity.uuid && uuid_map.has(activity.uuid)) {
-                let id = uuid_map.get(activity.uuid)
-                if (id !== undefined) {
-                    activity.uuid = id.toString();
-                }
-            } else {
-                uuid_map.set(activity.uuid, count.toString());
-                activity.uuid = count.toString();
-                count++;
+    schedule.activities.forEach((activity) => {
+        if (activity.uuid && uuid_map.has(activity.uuid)) {
+            let id = uuid_map.get(activity.uuid);
+            if (id !== undefined) {
+                activity.uuid = id.toString();
             }
-            if (activity.parent_uuid && uuid_map.has(activity.parent_uuid)) {
-                activity.parent_uuid = uuid_map.get(activity.parent_uuid)?.toString();
-            } else if (activity.parent_uuid) {
-                uuid_map.set(activity.parent_uuid, count.toString());
-                activity.parent_uuid = count.toString();
-                count++;
-            }
-            
-            if (activity.dependencies) {
-                activity.dependencies.forEach(
-                    (dependency) => {
-                        if (dependency.dependency_uuid && uuid_map.has(dependency.dependency_uuid)) {
-                            let id = uuid_map.get(dependency.dependency_uuid)
-                            if (id !== undefined) {
-                                dependency.dependency_uuid = id.toString();
-                            }
-                        } else {
-                            uuid_map.set(dependency.dependency_uuid, count.toString());
-                            dependency.dependency_uuid = count.toString();
-                            count++;
-                        }
-                    }
-                )
-            }
-            if (activity.uuid == "56") {
-                console.log(activity);
-            }
+        } else {
+            uuid_map.set(activity.uuid, count.toString());
+            activity.uuid = count.toString();
+            count++;
         }
-    )
+        if (activity.parent_uuid && uuid_map.has(activity.parent_uuid)) {
+            activity.parent_uuid = uuid_map
+                .get(activity.parent_uuid)
+                ?.toString();
+        } else if (activity.parent_uuid) {
+            uuid_map.set(activity.parent_uuid, count.toString());
+            activity.parent_uuid = count.toString();
+            count++;
+        }
+
+        if (activity.dependencies) {
+            activity.dependencies.forEach((dependency) => {
+                if (
+                    dependency.dependency_uuid &&
+                    uuid_map.has(dependency.dependency_uuid)
+                ) {
+                    let id = uuid_map.get(dependency.dependency_uuid);
+                    if (id !== undefined) {
+                        dependency.dependency_uuid = id.toString();
+                    }
+                } else {
+                    uuid_map.set(dependency.dependency_uuid, count.toString());
+                    dependency.dependency_uuid = count.toString();
+                    count++;
+                }
+            });
+        }
+        if (activity.uuid == "56") {
+            console.log(activity);
+        }
+    });
     return schedule;
 }
-
 
 // ProjectScheduleProcessor.process_project_schedule_data(process_schedule(project_schedule));
