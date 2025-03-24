@@ -81,7 +81,7 @@ export class GanttDataParser {
                 task.start_date ? task.start_date : undefined,
                 task.end_date
                     ? add(task.end_date, {
-                          days: task.type == ACTIVITY_TYPE.TASK ? -1 : 0,
+                          days: task.duration != 0 ? -1 : 0,
                       })
                     : undefined,
                 // task.end_date,
@@ -140,7 +140,7 @@ export class GanttDataParser {
                 id: activity.id,
                 start_date: activity.get_planned_start_date(),
                 end_date: add(activity.get_planned_end_date(), {
-                    days: activity.type == ACTIVITY_TYPE.TASK ? 1 : 0,
+                    days:  activity.get_duration() != 0 ? 1 : 0,
                 }),
                 // end_date: activity.get_planned_end_date(),
                 actual_start_date: actual_start_date
