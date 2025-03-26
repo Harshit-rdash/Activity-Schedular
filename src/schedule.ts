@@ -1,5 +1,5 @@
 import { Activity } from "./activity";
-import { ACTIVITY_DEPENDENCY_TYPE } from "./enums";
+import { ACTIVITY_DEPENDENCY_TYPE, ACTIVITY_TYPE } from "./enums";
 import { add, max, min } from "date-fns";
 
 export class Schedule {
@@ -46,7 +46,7 @@ export class Schedule {
                 if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FS) {
                     planned_start_dates.push(
                         add(dependency_activity.get_planned_end_date(), {
-                            days: (dependency.lag + 1),
+                            days: dependency.lag + 1,
                         })
                     );
                 } else if (dependency.type === ACTIVITY_DEPENDENCY_TYPE.FF) {
@@ -81,6 +81,8 @@ export class Schedule {
             let planned_end_dates: Date[] = [];
             let actual_start_dates: Date[] = [];
             let actual_end_dates: Date[] = [];
+            let projected_start_dates: Date[] = [];
+            let projected_end_dates: Date[] = [];
             let total_duration: number = 0;
             let weighted_completion_sum: number = 0;
             for (let child_id of activity.childs) {
@@ -103,6 +105,12 @@ export class Schedule {
                 if (actual_end_date) {
                     actual_end_dates.push(actual_end_date);
                 }
+                let projected_start_date =
+                    child_activity.get_projected_start_date();
+                projected_start_dates.push(projected_start_date);
+                let projected_end_date =
+                    child_activity.get_projected_end_date();
+                projected_end_dates.push(projected_end_date);
                 let child_duration = child_activity.get_duration();
                 weighted_completion_sum +=
                     child_activity.completion_percentage * child_duration;
@@ -118,6 +126,12 @@ export class Schedule {
                 activity.set_actual_start_date(min(actual_start_dates));
             } else {
                 activity.set_actual_start_date(undefined);
+            }
+            if (activity.type != ACTIVITY_TYPE.TASK) {
+                activity.set_projected_start_date(min(projected_start_dates));
+            }
+            if (activity.type != ACTIVITY_TYPE.TASK) {
+                activity.set_projected_end_date(max(projected_end_dates));
             }
             let completion_percentage = weighted_completion_sum
                 ? weighted_completion_sum / total_duration

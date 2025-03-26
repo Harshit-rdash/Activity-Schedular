@@ -81,16 +81,19 @@ export class GanttDataParser {
                 task.start_date ? task.start_date : undefined,
                 task.end_date
                     ? add(task.end_date, {
-                          days: task.duration != 0 ? -1 : 0,
+                          days: task.type != ACTIVITY_TYPE.MILESTONE ? -1 : 0,
                       })
                     : undefined,
-                // task.end_date,
                 task.actual_start_date ? task.actual_start_date : undefined,
                 task.actual_end_date ? task.actual_end_date : undefined,
                 [],
                 [],
                 task.progress ? task.progress * 100 : 0,
-                parent_id
+                parent_id,
+                task.projected_start_date
+                    ? task.projected_start_date
+                    : undefined,
+                task.projected_end_date ? task.projected_end_date : undefined
             );
             activity_map.set(task.id, activity);
             this.extra_data_map.set(task.id, task);
@@ -140,9 +143,8 @@ export class GanttDataParser {
                 id: activity.id,
                 start_date: activity.get_planned_start_date(),
                 end_date: add(activity.get_planned_end_date(), {
-                    days:  activity.get_duration() != 0 ? 1 : 0,
+                    days: activity.type != ACTIVITY_TYPE.MILESTONE ? 1 : 0,
                 }),
-                // end_date: activity.get_planned_end_date(),
                 actual_start_date: actual_start_date
                     ? actual_start_date
                     : undefined,
@@ -232,6 +234,12 @@ export class ScheduleDataParser {
             let actual_end_date = this.getMidnightDate(
                 activity_data.actual_end_date
             );
+            let projected_start_date = this.getMidnightDate(
+                activity_data.projected_start_date
+            );
+            let projected_end_date = this.getMidnightDate(
+                activity_data.projected_end_date
+            );
             let activity = new Activity(
                 activity_data.uuid,
                 activity_data.type
@@ -248,7 +256,9 @@ export class ScheduleDataParser {
                 activity_data.completion_percentage
                     ? activity_data.completion_percentage
                     : 0,
-                activity_data.parent_uuid
+                activity_data.parent_uuid,
+                projected_start_date,
+                projected_end_date
             );
             activity_map.set(activity_data.uuid, activity);
             this.extra_data_map.set(activity_data.uuid, activity_data);

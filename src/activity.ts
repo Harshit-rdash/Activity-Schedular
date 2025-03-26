@@ -33,6 +33,8 @@ export class Activity {
     dependencies: Array<IDependency>;
     completion_percentage: number;
     parent_id?: string;
+    projected_start_date?: Date = undefined;
+    projected_end_date?: Date = undefined;
 
     constructor(
         id: string,
@@ -44,7 +46,9 @@ export class Activity {
         childs: Array<string> = [],
         dependencies: Array<IDependency> = [],
         completion_percentage: number = 0,
-        parent_id?: string
+        parent_id?: string,
+        projected_start_date?: Date,
+        projected_end_date?: Date,
     ) {
         this.id = id;
         this.planned_start_date = planned_start_date;
@@ -56,6 +60,8 @@ export class Activity {
         this.completion_percentage = completion_percentage;
         this.parent_id = parent_id;
         this.type = type;
+        this.projected_start_date = projected_start_date;
+        this.projected_end_date = projected_end_date;
     }
 
     private _get_duration(): number {
@@ -116,8 +122,26 @@ export class Activity {
         this.actual_end_date = date;
     }
 
+    set_projected_start_date(date: Date): void {
+        if (this.type != ACTIVITY_TYPE.PROJECT)  {
+            throw new Activity.ActivityBaseError(
+                "Projected start date can only be set for project type activity"
+            )
+        }
+        this.projected_start_date = date;
+    }
+
+    set_projected_end_date(date: Date): void {
+        if (this.type != ACTIVITY_TYPE.PROJECT)  {
+            throw new Activity.ActivityBaseError(
+                "Projected start date can only be set for project type activity"
+            )
+        }
+        this.projected_end_date = date;
+    }
+
     get_duration(): number {
-        if (this.type !== ACTIVITY_TYPE.TASK) {
+        if (this.type === ACTIVITY_TYPE.MILESTONE) {
             return 0;
         }
         return this._get_duration() + 1;
@@ -125,10 +149,18 @@ export class Activity {
 
     get_remaining_duration(): number {
         let duration = this._get_duration();
-        return Math.floor(duration * (1 - this.completion_percentage / 100));
+        return Math.ceil(duration * (1 - this.completion_percentage / 100));
     }
 
     get_projected_start_date(): Date {
+        if (this.type != ACTIVITY_TYPE.TASK ) {
+            if (this.projected_start_date === undefined) {
+                throw new Activity.PlannedDateMissingError(
+                    `Projected start date is missing, activity_id: ${this.id}, please process schedule first`
+                );
+            }
+            return this.projected_start_date;
+        }
         if (this.planned_start_date === undefined) {
             throw new Activity.PlannedDateMissingError(
                 `Planned start date is missing, activity_id: ${this.id}`
@@ -150,6 +182,14 @@ export class Activity {
     }
 
     get_projected_end_date(): Date {
+        if (this.type != ACTIVITY_TYPE.TASK ) {
+            if (this.projected_end_date === undefined) {
+                throw new Activity.PlannedDateMissingError(
+                    `Projected start date is missing, activity_id: ${this.id}, please process schedule first`
+                );
+            }
+            return this.projected_end_date;
+        }
         if (this.planned_end_date === undefined) {
             throw new Activity.PlannedDateMissingError(
                 `Planned end date is missing, activity_id: ${this.id}`
